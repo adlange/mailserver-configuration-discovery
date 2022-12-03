@@ -8,7 +8,26 @@
     <packaging>jar</packaging>
 
     <name>mailserver-configuration-discovery</name>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/adlange/mailserver-configuration-discovery</url>
+
+    <organization>
+        <name>Adrian Lange</name>
+    </organization>
+    <inceptionYear>2022</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Adrian Lange</name>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
