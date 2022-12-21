@@ -1,9 +1,12 @@
 package de.adrianlange.mcd.model.context;
 
+import de.adrianlange.mcd.model.ConfigurationMethod;
+
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -32,8 +35,20 @@ public class MailserverConfigurationDiscoveryContextBuilder {
    */
   public MailserverConfigurationDiscoveryContextBuilder withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope... discoveryScopes ) {
 
-    context.setDiscoveryScopes( discoveryScopes == null ? Collections.emptySet() :
-        Arrays.stream( discoveryScopes ).collect( Collectors.toSet() ) );
+    context.setDiscoveryScopes( toSet( discoveryScopes ) );
+    return this;
+  }
+
+
+  /**
+   * Sets the configuration methods to declare which configuration method should be considered for discovery.
+   *
+   * @param configurationMethods Configuration methods to consider
+   * @return builder
+   */
+  public MailserverConfigurationDiscoveryContextBuilder withConfigurationMethods( ConfigurationMethod... configurationMethods ) {
+
+    context.setConfigurationMethods( toSet( configurationMethods ) );
     return this;
   }
 
@@ -91,8 +106,23 @@ public class MailserverConfigurationDiscoveryContextBuilder {
   }
 
 
+  /**
+   * Builds the context object.
+   *
+   * @return Context object
+   */
   public MailserverConfigurationDiscoveryContext build() {
 
     return context;
+  }
+
+
+  @SafeVarargs
+  private static <T extends Enum<?>> Set<T> toSet( T... varargs ) {
+
+    if( varargs == null )
+      return Collections.emptySet();
+
+    return Arrays.stream( varargs ).collect( Collectors.toSet() );
   }
 }

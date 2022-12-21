@@ -1,5 +1,8 @@
 package de.adrianlange.mcd.model.context;
 
+import de.adrianlange.mcd.model.ConfigurationMethod;
+
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -10,11 +13,14 @@ public class MailserverConfigurationDiscoveryContextImpl implements MailserverCo
 
   private Set<DiscoveryScope> discoveryScopes;
 
+  private Set<ConfigurationMethod> configurationMethods;
+
 
   protected MailserverConfigurationDiscoveryContextImpl() {
 
     this.dnsLookupContext = new DnsLookupContextImpl();
     this.discoveryScopes = EnumSet.allOf( DiscoveryScope.class );
+    this.configurationMethods = EnumSet.allOf( ConfigurationMethod.class );
   }
 
 
@@ -28,12 +34,23 @@ public class MailserverConfigurationDiscoveryContextImpl implements MailserverCo
   @Override
   public Set<DiscoveryScope> getDiscoveryScopes() {
 
-    return discoveryScopes;
+    return Collections.unmodifiableSet( discoveryScopes );
   }
 
 
   public void setDiscoveryScopes( Set<DiscoveryScope> discoveryScopes ) {
 
     this.discoveryScopes = discoveryScopes;
+  }
+
+
+  @Override
+  public Set<ConfigurationMethod> getConfigurationMethods() {
+    return Collections.unmodifiableSet( configurationMethods );
+  }
+
+
+  public void setConfigurationMethods( Set<ConfigurationMethod> configurationMethods ) {
+    this.configurationMethods = configurationMethods;
   }
 }

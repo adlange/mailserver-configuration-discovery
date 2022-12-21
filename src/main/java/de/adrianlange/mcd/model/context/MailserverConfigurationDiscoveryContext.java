@@ -1,5 +1,7 @@
 package de.adrianlange.mcd.model.context;
 
+import de.adrianlange.mcd.model.ConfigurationMethod;
+
 import java.util.Set;
 
 
@@ -23,6 +25,14 @@ public interface MailserverConfigurationDiscoveryContext {
    * @return Discovery scopes
    */
   Set<DiscoveryScope> getDiscoveryScopes();
+
+
+  /**
+   * Returns the set of configuration methods to use for discovery.
+   *
+   * @return Configuration methods
+   */
+  Set<ConfigurationMethod> getConfigurationMethods();
 
 
   enum DiscoveryScope {
