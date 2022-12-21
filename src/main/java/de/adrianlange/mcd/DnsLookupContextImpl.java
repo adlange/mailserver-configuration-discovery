@@ -1,4 +1,4 @@
-package de.adrianlange.mcd.model.context;
+package de.adrianlange.mcd;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

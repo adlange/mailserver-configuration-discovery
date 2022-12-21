@@ -1,4 +1,4 @@
-package de.adrianlange.mcd.model.context;
+package de.adrianlange.mcd;
 
 import java.time.Duration;
 import java.util.Collection;

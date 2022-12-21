@@ -1,4 +1,4 @@
-package de.adrianlange.mcd.model.strategy;
+package de.adrianlange.mcd.strategy;
 
 import de.adrianlange.mcd.model.MailserverService;
 

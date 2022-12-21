@@ -1,4 +1,4 @@
-package de.adrianlange.mcd.model.strategy;
+package de.adrianlange.mcd.strategy;
 
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.EmailValidator;

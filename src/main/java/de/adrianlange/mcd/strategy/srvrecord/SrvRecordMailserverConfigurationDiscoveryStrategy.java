@@ -1,14 +1,14 @@
-package de.adrianlange.mcd.model.strategy.srvrecord;
+package de.adrianlange.mcd.strategy.srvrecord;
 
 import de.adrianlange.mcd.infrastructure.dns.SrvDnsResolver;
 import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
-import de.adrianlange.mcd.model.context.MailserverConfigurationDiscoveryContext;
+import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext;
 import de.adrianlange.mcd.model.impl.SrvRecordMailserverServiceImpl;
-import de.adrianlange.mcd.model.strategy.EmailAddress;
-import de.adrianlange.mcd.model.strategy.MailserverConfigurationDiscoveryStrategy;
+import de.adrianlange.mcd.strategy.EmailAddress;
+import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
 import org.xbill.DNS.SRVRecord;
 
 import java.util.ArrayList;

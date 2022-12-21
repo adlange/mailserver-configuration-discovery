@@ -1,6 +1,6 @@
 package de.adrianlange.mcd.infrastructure.dns;
 
-import de.adrianlange.mcd.model.context.DnsLookupContext;
+import de.adrianlange.mcd.DnsLookupContext;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.SRVRecord;

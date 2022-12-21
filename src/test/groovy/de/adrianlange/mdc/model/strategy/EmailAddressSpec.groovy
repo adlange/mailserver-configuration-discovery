@@ -1,6 +1,6 @@
 package de.adrianlange.mdc.model.strategy
 
-import de.adrianlange.mcd.model.strategy.EmailAddress
+import de.adrianlange.mcd.strategy.EmailAddress
 import spock.lang.Specification
 
 class EmailAddressSpec extends Specification {
