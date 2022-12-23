@@ -1,6 +1,7 @@
 package de.adrianlange.mcd.strategy.srvrecord;
 
 import de.adrianlange.mcd.infrastructure.dns.SrvDnsResolver;
+import de.adrianlange.mcd.infrastructure.dns.SrvDnsResolverImpl;
 import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.model.Protocol;
@@ -20,14 +21,14 @@ public class SrvRecordMailserverConfigurationDiscoveryStrategy implements Mailse
 
   private static final ConfigurationMethod CONFIGURATION_METHOD = ConfigurationMethod.RFC_61186;
 
-  private final SrvDnsResolver srvDnsResolver;
+  private SrvDnsResolver srvDnsResolver;
 
   private final MailserverConfigurationDiscoveryContext context;
 
 
   public SrvRecordMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context ) {
 
-    srvDnsResolver = new SrvDnsResolver( context.getDnsLookupContext() );
+    srvDnsResolver = new SrvDnsResolverImpl( context.getDnsLookupContext() );
     this.context = context;
   }
 
