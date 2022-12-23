@@ -1,4 +1,4 @@
-package de.adrianlange.mdc.model.strategy
+package de.adrianlange.mdc.strategy
 
 import de.adrianlange.mcd.strategy.EmailAddress
 import spock.lang.Specification
