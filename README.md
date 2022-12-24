@@ -15,11 +15,11 @@ Microsoft Office Autodiscover v2 is not expected to be supported in the future.
 
 ## Usage
 
-The easiest way to determine mail server configurations can be done without configuration based on the domain or the whole email address.
+The easiest way to determine mailserver configurations can be done without configuration based on the domain or the whole email address.
 
 ```java
-List<MailserverConfiguration> configurationsA = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
-List<MailserverConfiguration> configurationsB = MailserverConfigurationDiscovery.discover( EmailAddress.of( "user@dummy-domain.com" ) );
+List<MailserverService> servicesA = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
+List<MailserverService> servicesB = MailserverConfigurationDiscovery.discover( EmailAddress.of( "user@dummy-domain.com" ) );
 ```
 
 With the help of a context, the query can be configured in many ways. To build a context the `MailserverConfigurationDiscoveryContextBuilder` is used.
@@ -30,7 +30,7 @@ Use only RFC 6186 configurations:
 var context = new MailserverConfigurationDiscoveryContextBuilder()
     .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
     .build();
-var configurations = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
+var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
 
 To only look for submission protocol configurations:
@@ -39,7 +39,7 @@ To only look for submission protocol configurations:
 var context = new MailserverConfigurationDiscoveryContextBuilder()
     .withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope.SUBMISSION )
     .build();
-var configurations = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
+var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
 
 A custom DNS resolver can also be configured:
@@ -50,15 +50,15 @@ var context = new MailserverConfigurationDiscoveryContextBuilder()
     .withDnsLookupTimeout( Duration.ofSeconds( 50 ) )
     .withDnsLookupRetries( 5 )
     .build();
-var configurations = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
+var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
 
 Depending on the method used to discover the configurations, they can be cast into their corresponding types.
 
 ```java
-var configurations = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
-for( MailserverService config : configurations ) {
-  if( config instanceof SrvRecordMailserverService srvRecordMailserverService ) {
+var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
+for( MailserverService service : services ) {
+  if( service instanceof SrvRecordMailserverService srvRecordMailserverService ) {
     // ...
   }
 }
@@ -67,10 +67,10 @@ for( MailserverService config : configurations ) {
 or
 
 ```java
-var configs = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
-for( MailserverService config : configs ) {
-  if( config.getConfigurationMethod() == ConfigurationMethod.RFC_61186 ) {
-    SrvRecordMailserverService srvRecordMailserverService = (SrvRecordMailserverService) config;
+var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
+for( MailserverService service : services ) {
+  if( service.getConfigurationMethod() == ConfigurationMethod.RFC_61186 ) {
+    var srvRecordMailserverService = (SrvRecordMailserverService) service;
     // ...
   }
 }
