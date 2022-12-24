@@ -38,7 +38,12 @@ public class MailserverConfigurationDiscovery {
     if( context == null )
       throw new IllegalArgumentException( "Context must not be null!" );
 
-    return getStrategies( context ).stream().map( s -> s.getMailserverServices( emailAddress ) ).flatMap( List::stream ).toList();
+    //@formatter:off
+    return getStrategies( context ).stream()
+        .map( s -> s.getMailserverServices( emailAddress ) )
+        .flatMap( List::stream )
+        .toList();
+    //@formatter:on
   }
 
 
@@ -57,7 +62,12 @@ public class MailserverConfigurationDiscovery {
     if( context == null )
       throw new IllegalArgumentException( "Context must not be null!" );
 
-    return getStrategies( context ).stream().map( s -> s.getMailserverServices( EmailAddress.DomainPart.of( domain ) ) ).flatMap( List::stream ).toList();
+    //@formatter:off
+    return getStrategies( context ).stream()
+        .map( s -> s.getMailserverServices( EmailAddress.DomainPart.of( domain ) ) )
+        .flatMap( List::stream )
+        .toList();
+    //@formatter:on
   }
 
 
@@ -70,11 +80,8 @@ public class MailserverConfigurationDiscovery {
    */
   public static List<MailserverService> discover( EmailAddress emailAddress ) {
 
-    if( emailAddress == null )
-      throw new IllegalArgumentException( "Email address must not be null!" );
-
     var context = new MailserverConfigurationDiscoveryContextBuilder().build();
-    return getStrategies( context ).stream().map( s -> s.getMailserverServices( emailAddress ) ).flatMap( List::stream ).toList();
+    return discover( emailAddress, context );
   }
 
 
@@ -87,11 +94,8 @@ public class MailserverConfigurationDiscovery {
    */
   public static List<MailserverService> discover( String domain ) {
 
-    if( domain == null )
-      throw new IllegalArgumentException( "Domain must not be null!" );
-
     var context = new MailserverConfigurationDiscoveryContextBuilder().build();
-    return getStrategies( context ).stream().map( s -> s.getMailserverServices( EmailAddress.DomainPart.of( domain ) ) ).flatMap( List::stream ).toList();
+    return discover( domain, context );
   }
 
 
