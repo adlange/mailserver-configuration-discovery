@@ -22,6 +22,8 @@ List<MailserverService> servicesA = MailserverConfigurationDiscovery.discover( "
 List<MailserverService> servicesB = MailserverConfigurationDiscovery.discover( EmailAddress.of( "user@dummy-domain.com" ) );
 ```
 
+### Context Configuration
+
 With the help of a context, the query can be configured in many ways. To build a context the `MailserverConfigurationDiscoveryContextBuilder` is used.
 
 Use only RFC 6186 configurations:
@@ -61,6 +63,8 @@ var context = new MailserverConfigurationDiscoveryContextBuilder()
     .build();
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
+
+### Discovered Mailserver Configurations
 
 Depending on the method used to discover the configurations, they can be cast into their corresponding types.
 
