@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 
@@ -49,6 +50,19 @@ public class MailserverConfigurationDiscoveryContextBuilder {
   public MailserverConfigurationDiscoveryContextBuilder withConfigurationMethods( ConfigurationMethod... configurationMethods ) {
 
     context.setConfigurationMethods( toSet( configurationMethods ) );
+    return this;
+  }
+
+
+  /**
+   * Sets the executor to run concurrent configuration discovery.
+   *
+   * @param executor The executor to use
+   * @return builder
+   */
+  public MailserverConfigurationDiscoveryContextBuilder withExecutor( Executor executor ) {
+
+    context.setExecutor( executor );
     return this;
   }
 

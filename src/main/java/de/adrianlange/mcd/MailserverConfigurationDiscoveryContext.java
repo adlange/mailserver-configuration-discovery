@@ -3,6 +3,7 @@ package de.adrianlange.mcd;
 import de.adrianlange.mcd.model.ConfigurationMethod;
 
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 
 /**
@@ -33,6 +34,14 @@ public interface MailserverConfigurationDiscoveryContext {
    * @return Configuration methods
    */
   Set<ConfigurationMethod> getConfigurationMethods();
+
+
+  /**
+   * Returns the executor used for concurrent mailserver configuration lookups.
+   *
+   * @return Executor
+   */
+  Executor getExecutor();
 
 
   enum DiscoveryScope {

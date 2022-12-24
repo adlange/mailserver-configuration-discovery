@@ -53,6 +53,15 @@ var context = new MailserverConfigurationDiscoveryContextBuilder()
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
 
+The discovery is run as concurrent task. If you want to use a custom Executor, you can overwrite the default one:
+
+```java
+var context = new MailserverConfigurationDiscoveryContextBuilder()
+    .withExecutor( new ForkJoinPool( 1 ) )
+    .build();
+var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
+```
+
 Depending on the method used to discover the configurations, they can be cast into their corresponding types.
 
 ```java

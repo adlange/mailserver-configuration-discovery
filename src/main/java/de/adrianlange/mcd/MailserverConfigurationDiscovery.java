@@ -9,6 +9,7 @@ import de.adrianlange.mcd.strategy.srvrecord.SrvRecordMailserverConfigurationDis
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -40,7 +41,9 @@ public class MailserverConfigurationDiscovery {
 
     //@formatter:off
     return getStrategies( context ).stream()
-        .map( s -> s.getMailserverServices( emailAddress ) )
+        .map( s -> s.getMailserverServicesAsync( emailAddress ) )
+        .flatMap( List::stream )
+        .map( CompletableFuture::join )
         .flatMap( List::stream )
         .toList();
     //@formatter:on
@@ -64,7 +67,9 @@ public class MailserverConfigurationDiscovery {
 
     //@formatter:off
     return getStrategies( context ).stream()
-        .map( s -> s.getMailserverServices( EmailAddress.DomainPart.of( domain ) ) )
+        .map( s -> s.getMailserverServicesAsync( EmailAddress.DomainPart.of( domain ) ) )
+        .flatMap( List::stream )
+        .map( CompletableFuture::join )
         .flatMap( List::stream )
         .toList();
     //@formatter:on
