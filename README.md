@@ -91,6 +91,8 @@ for( MailserverService service : services ) {
 
 ## Changelog
 
+### 0.0.2
+
 ### 0.0.1
 
 * initial release with RFC 6186 support
