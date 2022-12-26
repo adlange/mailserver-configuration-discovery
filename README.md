@@ -15,6 +15,24 @@ Microsoft Office Autodiscover v2 is not expected to be supported in the future.
 
 ## Usage
 
+The artifact can be included in Maven with
+
+```xml
+<dependency>
+  <groupId>de.adrianlange</groupId>
+  <artifactId>mailserver-configuration-discovery</artifactId>
+  <version>0.0.1</version>
+</dependency>
+```
+
+or using Gradle with
+
+```
+implementation( 'de.adrianlange:mailserver-configuration-discovery:0.0.1' )
+```
+
+### Discovery Mailserver Configurations
+
 The easiest way to determine mailserver configurations can be done without configuration based on the domain or the whole email address.
 
 ```java
