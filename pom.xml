@@ -9,6 +9,8 @@
 
     <name>mailserver-configuration-discovery</name>
     <url>https://github.com/adlange/mailserver-configuration-discovery</url>
+    <description>A Java library for looking up published mailserver configurations for clients for a given domain.
+    </description>
 
     <organization>
         <name>Adrian Lange</name>
