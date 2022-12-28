@@ -19,7 +19,7 @@ jobs:
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
       - if: startsWith(github.event.ref, 'refs/tags/v')
         name: Publish package
-        run: ./mvnw --batch-mode --no-transfer-progress clean deploy -Prelease
+        run: ./mvnw --batch-mode --no-transfer-progress clean deploy -DskipTests=true -Prelease
         env:
           MAVEN_USERNAME: ${{ secrets.JRELEASER_NEXUS2_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JRELEASER_NEXUS2_PASSWORD }}
