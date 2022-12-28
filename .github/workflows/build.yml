@@ -15,6 +15,9 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.JRELEASER_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
+      - name: version
+        run: echo ::set-output name=version::$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
+        id: version
       - name: Verify Build
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
       - if: startsWith(github.event.ref, 'refs/tags/v')
@@ -24,3 +27,26 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.JRELEASER_NEXUS2_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JRELEASER_NEXUS2_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
+      - if: startsWith(github.event.ref, 'refs/tags/v')
+        name: Create Release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+          body: |
+            Grab the new version from Maven central https://repo1.maven.org/maven2/de/adrianlange/mailserver-configuration-discovery/${{ steps.version.outputs.version }}/ by using it in your deps:
+            
+            ```
+            <dependencies>
+            	<dependency>
+            	    <groupId>de.adrianlange</groupId>
+            	    <artifactId>mailserver-configuration-discovery</artifactId>
+            	    <version>${{ steps.version.outputs.version }}</version>
+            	</dependency>
+            </dependencies>
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
