@@ -27,7 +27,7 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.JRELEASER_NEXUS2_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JRELEASER_NEXUS2_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
-      - if: startsWith(github.event.ref, 'refs/tags/v')
+      - if: startsWith(github.event.ref, 'refs/tags/v') && !endsWith(steps.version.outputs.version, '-SNAPSHOT')
         name: Create Release
         uses: actions/create-release@v1
         id: create_release
