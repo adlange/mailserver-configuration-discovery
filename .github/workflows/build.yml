@@ -1,12 +1,7 @@
-name: Publish package to the Maven Central Repository
-on:
-  push:
-    tags:
-      - v*
-  pull_request:
-    branches: [ main ]
+name: Build and Publish
+on: [push]
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,7 +15,10 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.JRELEASER_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
-      - name: Publish package
+      - name: Verify Build
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+      - if: startsWith(github.event.ref, 'refs/tags/v')
+        name: Publish package
         run: ./mvnw --batch-mode --no-transfer-progress clean deploy -Prelease
         env:
           MAVEN_USERNAME: ${{ secrets.JRELEASER_NEXUS2_USERNAME }}
