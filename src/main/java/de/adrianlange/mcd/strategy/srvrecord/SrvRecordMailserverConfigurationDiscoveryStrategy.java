@@ -3,7 +3,6 @@ package de.adrianlange.mcd.strategy.srvrecord;
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext;
 import de.adrianlange.mcd.infrastructure.dns.SrvDnsResolver;
 import de.adrianlange.mcd.infrastructure.dns.SrvDnsResolverImpl;
-import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
@@ -19,8 +18,6 @@ import java.util.concurrent.CompletableFuture;
 
 
 public class SrvRecordMailserverConfigurationDiscoveryStrategy implements MailserverConfigurationDiscoveryStrategy {
-
-  private static final ConfigurationMethod CONFIGURATION_METHOD = ConfigurationMethod.RFC_61186;
 
   private SrvDnsResolver srvDnsResolver;
 
@@ -85,8 +82,8 @@ public class SrvRecordMailserverConfigurationDiscoveryStrategy implements Mailse
       String host = getHostFromName( srvRecord.getTarget() );
       int port = srvRecord.getPort();
 
-      var mailserverService = new SrvRecordMailserverServiceImpl( CONFIGURATION_METHOD, srvProtocol.protocol,
-          srvProtocol.socketType, host, port, srvRecord.getWeight() );
+      var mailserverService = new SrvRecordMailserverServiceImpl( srvProtocol.protocol, srvProtocol.socketType, host,
+          port, srvRecord.getWeight() );
       mailserverService.setPriority( srvRecord.getPriority() );
       mailserverServices.add( mailserverService );
     }

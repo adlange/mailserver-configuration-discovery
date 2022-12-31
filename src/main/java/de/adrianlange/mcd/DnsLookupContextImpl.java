@@ -27,7 +27,7 @@ public class DnsLookupContextImpl implements DnsLookupContext {
 
   public void addDnsServer( String dnsServer ) throws UnknownHostException {
 
-    var ignore = InetAddress.getByName( dnsServer );
+    InetAddress.getByName( dnsServer );
     dnsServers.add( dnsServer );
   }
 
