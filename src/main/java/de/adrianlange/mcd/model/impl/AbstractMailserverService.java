@@ -16,8 +16,6 @@ public abstract class AbstractMailserverService implements MailserverService {
 
   private Integer port;
 
-  private Integer priority;
-
   private ConfigurationMethod configurationMethod;
 
 
@@ -85,19 +83,6 @@ public abstract class AbstractMailserverService implements MailserverService {
 
 
   @Override
-  public Integer getPriority() {
-
-    return priority;
-  }
-
-
-  public void setPriority( Integer priority ) {
-
-    this.priority = priority;
-  }
-
-
-  @Override
   public ConfigurationMethod getConfigurationMethod() {
 
     return configurationMethod;
@@ -113,7 +98,6 @@ public abstract class AbstractMailserverService implements MailserverService {
   @Override
   public String toString() {
 
-    return "configurationMethod=" + configurationMethod + ", protocol=" + protocol + ", host='" + host + '\'' + ", " +
-        "port=" + port + ", socketType=" + socketType + ", priority=" + priority;
+    return "configurationMethod=" + configurationMethod + ", protocol=" + protocol + ", host='" + host + "', port=" + port + ", socketType=" + socketType;
   }
 }

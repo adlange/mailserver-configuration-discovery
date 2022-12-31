@@ -1,6 +1,8 @@
 package de.adrianlange.mcd.infrastructure.dns;
 
 import de.adrianlange.mcd.DnsLookupContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.SRVRecord;
@@ -14,6 +16,8 @@ import java.util.Collections;
 
 
 public class SrvDnsResolverImpl implements SrvDnsResolver {
+
+  private static final Logger LOG = LoggerFactory.getLogger( SrvDnsResolverImpl.class );
 
   private final ExtendedResolver resolver;
 
@@ -29,9 +33,10 @@ public class SrvDnsResolverImpl implements SrvDnsResolver {
       var servers = dnsLookupContext.getDnsServers().toArray( new String[0] );
       try {
         resolver = new ExtendedResolver( servers );
-      } catch( UnknownHostException ignore ) {
+      } catch( UnknownHostException uhe ) {
+        LOG.error( "Given DNS servers may not exist: {}", dnsLookupContext.getDnsServers(), uhe );
         // is handled when defining the context
-        throw new RuntimeException( ignore );
+        throw new RuntimeException( uhe );
       }
     }
     resolver.setTimeout( dnsLookupContext.getTimeout() );
@@ -53,7 +58,8 @@ public class SrvDnsResolverImpl implements SrvDnsResolver {
 
       return Arrays.stream( lookupResult ).filter( r -> r.getType() == Type.SRV ).map( SRVRecord.class::cast ).toList();
     } catch( TextParseException e ) {
-      throw new RuntimeException( e ); // TODO
+      LOG.error( "Could not lookup domain {}", lookupDomain, e );
     }
+    return Collections.emptyList();
   }
 }
