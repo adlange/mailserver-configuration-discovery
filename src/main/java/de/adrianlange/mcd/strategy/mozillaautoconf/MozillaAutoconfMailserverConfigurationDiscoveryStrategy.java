@@ -95,22 +95,98 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   public List<MailserverService> getMailserverServices( EmailAddress emailAddress ) {
 
     // @formatter:off
-    return getDocuments( emailAddress.getDomainPart().toIdn(), emailAddress.toIdn() ).stream()
-        .map( d -> getMailserverServicesFromDocument( d, emailAddress ) )
+    return getMailserverServicesAsync( emailAddress ).stream()
+        .map( CompletableFuture::join )
         .flatMap( List::stream )
         .toList();
     // @formatter:on
   }
 
 
-  private List<MailserverService> getMailserverServicesFromDocument( Document document, EmailAddress emailAddress ) {
+  @Override
+  public List<MailserverService> getMailserverServices( EmailAddress.DomainPart domainPart ) {
+
+    // @formatter:off
+    return getMailserverServicesAsync( domainPart ).stream()
+        .map( CompletableFuture::join )
+        .flatMap( List::stream )
+        .toList();
+    // @formatter:on
+  }
+
+
+  @Override
+  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress emailAddress ) {
+
+    var urls = getLookupUrls( emailAddress.getDomainPart().toIdn(), emailAddress.toIdn() );
+    var placeholders = getPlaceholders( emailAddress );
+
+    List<CompletableFuture<List<MailserverService>>> completableFutures = new ArrayList<>();
+    // @formatter:off
+    urls.stream()
+        .map( url -> CompletableFuture.supplyAsync( () -> getMailserverServicesFromUrl( url, placeholders ), context.getExecutor() ) )
+        .forEach( completableFutures::add );
+    // @formatter:on
+    completableFutures.add( getMailserverServicesUrlFromDns( emailAddress.getDomainPart().toIdn(), placeholders ) );
+
+    return completableFutures;
+  }
+
+
+  @Override
+  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress.DomainPart domainPart ) {
+
+    var urls = getLookupUrls( domainPart.toIdn(), null );
+    var placeholders = getPlaceholders( domainPart );
+
+    List<CompletableFuture<List<MailserverService>>> completableFutures = new ArrayList<>();
+    // @formatter:off
+    urls.stream()
+        .map( url -> CompletableFuture.supplyAsync( () -> getMailserverServicesFromUrl( url, placeholders ), context.getExecutor() ) )
+        .forEach( completableFutures::add );
+    // @formatter:on
+    completableFutures.add( getMailserverServicesUrlFromDns( domainPart.toIdn(), placeholders ) );
+
+    return completableFutures;
+  }
+
+
+  private List<MailserverService> getMailserverServicesFromUrl( String url, Map<String, String> placeholders ) {
+    var document = getDocumentFromUrl( url );
+    if( document.isPresent() )
+      return getMailserverServicesFromDocument( document.get(), placeholders );
+    else
+      return Collections.emptyList();
+  }
+
+
+  private CompletableFuture<List<MailserverService>> getMailserverServicesUrlFromDns( String domain, Map<String,
+      String> placeholders ) {
+
+    return CompletableFuture.supplyAsync( () -> {
+      // @formatter:off
+      return txtDnsResolver.getTxtRecords( domain ).stream()
+          .map( TXTRecord::getStrings )
+          .map( t -> String.join( "", t ) )
+          .filter( u -> u.startsWith( "mailconf=" ) )
+          .map( u -> u.replaceFirst( "^mailconf=", "" ) )
+          .map( u -> getMailserverServicesFromUrl( u, placeholders ) )
+          .flatMap( List::stream )
+          .toList();
+      // @formatter:on
+
+    }, context.getExecutor() );
+  }
+
+
+  private List<MailserverService> getMailserverServicesFromDocument( Document document,
+                                                                     Map<String, String> placeholders ) {
 
     if( !document.getDocumentElement().getNodeName().equals( EL_ROOT ) ) {
       LOG.debug( "Document root {} must equal {}!", document.getDocumentElement().getNodeName(), EL_ROOT );
       return Collections.emptyList();
     }
 
-    var placeholders = getPlaceholders( emailAddress );
     var oAuth2s = getOAuth2sFromDocument( document, placeholders );
 
     return getMailserverServices( document.getDocumentElement(), placeholders, oAuth2s );
@@ -256,15 +332,9 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   }
 
 
-  private List<Document> getDocuments( String domain, String emailAddress ) {
+  private Optional<Document> getDocumentFromUrl( String url ) {
 
-    List<Document> documents = new ArrayList<>();
-    var urls = getLookupUrls( domain, emailAddress );
-    for( var url : urls ) {
-      xmlDocumentUrlReader.getDocument( url ).ifPresent( documents::add );
-    }
-
-    return documents;
+    return xmlDocumentUrlReader.getDocument( url );
   }
 
 
@@ -279,35 +349,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
     }
     urls.add( "http://" + domain + "/.well-known/autoconfig/mail/config-v1.1.xml" );
 
-    // @formatter:off
-    var urlsFromDns = txtDnsResolver.getTxtRecords( domain ).stream()
-        .map( TXTRecord::getStrings )
-        .map( t -> String.join( "", t ) )
-        .filter( u -> u.startsWith( "mailconf=" ) )
-        .map( u -> u.replaceFirst( "^mailconf=", "" ) )
-        .collect( Collectors.toSet() );
-    // @formatter:on
-    urls.addAll( urlsFromDns );
-
     return urls;
-  }
-
-
-  @Override
-  public List<MailserverService> getMailserverServices( EmailAddress.DomainPart domainPart ) {
-    return null;
-  }
-
-
-  @Override
-  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress emailAddress ) {
-    return null;
-  }
-
-
-  @Override
-  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress.DomainPart domainPart ) {
-    return null;
   }
 
 
