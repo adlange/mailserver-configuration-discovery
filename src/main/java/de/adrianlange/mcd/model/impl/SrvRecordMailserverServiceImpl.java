@@ -8,14 +8,29 @@ import de.adrianlange.mcd.model.SrvRecordMailserverService;
 
 public class SrvRecordMailserverServiceImpl extends AbstractMailserverService implements SrvRecordMailserverService {
 
+  private Integer priority;
+
   private Integer weight;
 
 
-  public SrvRecordMailserverServiceImpl( ConfigurationMethod configurationMethod, Protocol protocol,
-                                         SocketType socketType, String host, Integer port, Integer weight ) {
+  public SrvRecordMailserverServiceImpl( Protocol protocol, SocketType socketType, String host, Integer port,
+                                         Integer weight ) {
 
-    super( configurationMethod, protocol, socketType, host, port );
+    super( ConfigurationMethod.RFC_61186, protocol, socketType, host, port );
     this.weight = weight;
+  }
+
+
+  @Override
+  public Integer getPriority() {
+
+    return priority;
+  }
+
+
+  public void setPriority( Integer priority ) {
+
+    this.priority = priority;
   }
 
 
@@ -35,6 +50,6 @@ public class SrvRecordMailserverServiceImpl extends AbstractMailserverService im
   @Override
   public String toString() {
 
-    return super.toString() + ", weight=" + weight;
+    return super.toString() + ", priority=" + priority + ", weight=" + weight;
   }
 }

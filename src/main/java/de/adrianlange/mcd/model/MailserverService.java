@@ -36,16 +36,6 @@ public interface MailserverService {
 
 
   /**
-   * Priority of the mailserver service. A service with a smaller priority should be preferred over a service with a
-   * larger priority. This also applies across protocols, for example, it can be made clear that the connection via IMAP
-   * should be preferred to one via POP3.
-   *
-   * @return Priority of the mailserver service or <code>null</code> if not specified
-   */
-  Integer getPriority();
-
-
-  /**
    * Returns the configuration method over which the mailserver configuration has been discovered.
    *
    * @return Mailserver configuration.
