@@ -37,16 +37,20 @@ jobs:
           release_name: ${{ steps.version.outputs.version }}
           tag_name: ${{ github.ref }}
           body: |
-            Grab the new version from Maven central https://repo1.maven.org/maven2/de/adrianlange/mailserver-configuration-discovery/${{ steps.version.outputs.version }}/ by using it in your deps:
+            Grab the new version from Maven central https://repo1.maven.org/maven2/de/adrianlange/mailserver-configuration-discovery/${{ steps.version.outputs.version }}/ by using it in your dependencies:
             
+            ```xml
+            <dependency>
+              <groupId>de.adrianlange</groupId>
+              <artifactId>mailserver-configuration-discovery</artifactId>
+              <version>${{ steps.version.outputs.version }}</version>
+            </dependency>
             ```
-            <dependencies>
-            	<dependency>
-            	    <groupId>de.adrianlange</groupId>
-            	    <artifactId>mailserver-configuration-discovery</artifactId>
-            	    <version>${{ steps.version.outputs.version }}</version>
-            	</dependency>
-            </dependencies>
+            
+            Or using Gradle:
+            
+            ````groovy
+            implementation( 'de.adrianlange:mailserver-configuration-discovery:${{ steps.version.outputs.version }}' )
             ```
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
