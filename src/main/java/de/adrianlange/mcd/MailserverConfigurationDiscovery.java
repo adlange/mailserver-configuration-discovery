@@ -4,6 +4,7 @@ import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.strategy.EmailAddress;
 import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
+import de.adrianlange.mcd.strategy.mozillaautoconf.MozillaAutoconfMailserverConfigurationDiscoveryStrategy;
 import de.adrianlange.mcd.strategy.srvrecord.SrvRecordMailserverConfigurationDiscoveryStrategy;
 
 import java.util.HashSet;
@@ -107,10 +108,13 @@ public class MailserverConfigurationDiscovery {
   private static Set<MailserverConfigurationDiscoveryStrategy> getStrategies( MailserverConfigurationDiscoveryContext context ) {
     Set<MailserverConfigurationDiscoveryStrategy> strategies = new HashSet<>();
 
+    if( context.getConfigurationMethods().contains( ConfigurationMethod.MOZILLA_AUTOCONF ) )
+      strategies.add( new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context ) );
+
     if( context.getConfigurationMethods().contains( ConfigurationMethod.RFC_61186 ) )
       strategies.add( new SrvRecordMailserverConfigurationDiscoveryStrategy( context ) );
 
-    // TODO add strategies for other configuration methods
+    // TODO add autodiscover method
 
     return strategies;
   }
