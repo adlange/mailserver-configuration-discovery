@@ -6,11 +6,11 @@ import de.adrianlange.mcd.strategy.EmailAddress;
 import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
 import de.adrianlange.mcd.strategy.mozillaautoconf.MozillaAutoconfMailserverConfigurationDiscoveryStrategy;
 import de.adrianlange.mcd.strategy.srvrecord.SrvRecordMailserverConfigurationDiscoveryStrategy;
+import de.adrianlange.mcd.util.ConcurrencyUtils;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -40,14 +40,8 @@ public class MailserverConfigurationDiscovery {
     if( context == null )
       throw new IllegalArgumentException( "Context must not be null!" );
 
-    //@formatter:off
-    return getStrategies( context ).stream()
-        .map( s -> s.getMailserverServicesAsync( emailAddress ) )
-        .flatMap( List::stream )
-        .map( CompletableFuture::join )
-        .flatMap( List::stream )
-        .toList();
-    //@formatter:on
+    var stream = getStrategies( context ).stream().map( s -> s.getMailserverServicesAsync( emailAddress ) );
+    return ConcurrencyUtils.waitForAllAndMerge( stream );
   }
 
 
@@ -66,14 +60,9 @@ public class MailserverConfigurationDiscovery {
     if( context == null )
       throw new IllegalArgumentException( "Context must not be null!" );
 
-    //@formatter:off
-    return getStrategies( context ).stream()
-        .map( s -> s.getMailserverServicesAsync( EmailAddress.DomainPart.of( domain ) ) )
-        .flatMap( List::stream )
-        .map( CompletableFuture::join )
-        .flatMap( List::stream )
-        .toList();
-    //@formatter:on
+    var stream =
+        getStrategies( context ).stream().map( s -> s.getMailserverServicesAsync( EmailAddress.DomainPart.of( domain ) ) );
+    return ConcurrencyUtils.waitForAllAndMerge( stream );
   }
 
 
