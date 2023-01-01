@@ -75,6 +75,15 @@ public class MozillaAutoconfMailserverServiceImpl extends AbstractMailserverServ
   @Override
   public String toString() {
 
-    return super.toString() + ", username='" + username + "', password='" + password + "', authentications=" + authentications + ", oAuth2s=" + oAuth2s;
+    var sb = new StringBuilder( super.toString() );
+    if( username != null )
+      sb.append( ", username='" ).append( username ).append( "'" );
+    if( password != null )
+      sb.append( ", password='" ).append( password ).append( "'" );
+    if( !authentications.isEmpty() )
+      sb.append( ", authentications=" ).append( authentications );
+    if( !oAuth2s.isEmpty() )
+      sb.append( ", oAuth2s=" ).append( oAuth2s );
+    return sb.toString();
   }
 }

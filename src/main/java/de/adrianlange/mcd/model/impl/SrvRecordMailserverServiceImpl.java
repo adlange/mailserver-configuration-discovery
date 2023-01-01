@@ -50,6 +50,11 @@ public class SrvRecordMailserverServiceImpl extends AbstractMailserverService im
   @Override
   public String toString() {
 
-    return super.toString() + ", priority=" + priority + ", weight=" + weight;
+    var sb = new StringBuilder( super.toString() );
+    if( priority != null )
+      sb.append( ", priority=" ).append( priority );
+    if( weight != null )
+      sb.append( ", weight=" ).append( weight );
+    return sb.toString();
   }
 }

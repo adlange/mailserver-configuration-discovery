@@ -98,6 +98,16 @@ public abstract class AbstractMailserverService implements MailserverService {
   @Override
   public String toString() {
 
-    return "configurationMethod=" + configurationMethod + ", protocol=" + protocol + ", host='" + host + "', port=" + port + ", socketType=" + socketType;
+    var sb = new StringBuilder();
+    sb.append( "configurationMethod=" ).append( configurationMethod );
+    if( protocol != null )
+      sb.append( ", protocol=" ).append( protocol );
+    if( host != null )
+      sb.append( ", host='" ).append( host ).append( "'" );
+    if( port != null )
+      sb.append( ", port=" ).append( port );
+    if( socketType != null )
+      sb.append( ", socketType=" ).append( socketType );
+    return sb.toString();
   }
 }
