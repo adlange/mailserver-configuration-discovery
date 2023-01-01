@@ -23,6 +23,7 @@ import org.w3c.dom.NodeList;
 import org.xbill.DNS.TXTRecord;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,15 +122,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
     var urls = getLookupUrls( emailAddress.getDomainPart().toIdn(), emailAddress.toIdn() );
     var placeholders = getPlaceholders( emailAddress );
 
-    List<CompletableFuture<List<MailserverService>>> completableFutures = new ArrayList<>();
-    // @formatter:off
-    urls.stream()
-        .map( url -> CompletableFuture.supplyAsync( () -> getMailserverServicesFromUrl( url, placeholders ), context.getExecutor() ) )
-        .forEach( completableFutures::add );
-    // @formatter:on
-    completableFutures.add( getMailserverServicesUrlFromDns( emailAddress.getDomainPart().toIdn(), placeholders ) );
-
-    return completableFutures;
+    return getCompletableFutures( emailAddress.getDomainPart(), urls, placeholders );
   }
 
 
@@ -139,28 +132,26 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
     var urls = getLookupUrls( domainPart.toIdn(), null );
     var placeholders = getPlaceholders( domainPart );
 
+    return getCompletableFutures( domainPart, urls, placeholders );
+  }
+
+
+  private List<CompletableFuture<List<MailserverService>>> getCompletableFutures( EmailAddress.DomainPart domainPart,
+                                                                                  Collection<String> urls, Map<String, String> placeholders ) {
+
     List<CompletableFuture<List<MailserverService>>> completableFutures = new ArrayList<>();
     // @formatter:off
     urls.stream()
         .map( url -> CompletableFuture.supplyAsync( () -> getMailserverServicesFromUrl( url, placeholders ), context.getExecutor() ) )
         .forEach( completableFutures::add );
     // @formatter:on
-    completableFutures.add( getMailserverServicesUrlFromDns( domainPart.toIdn(), placeholders ) );
+    completableFutures.add( getMailserverServicesFromDnsUrl( domainPart.toIdn(), placeholders ) );
 
     return completableFutures;
   }
 
 
-  private List<MailserverService> getMailserverServicesFromUrl( String url, Map<String, String> placeholders ) {
-    var document = getDocumentFromUrl( url );
-    if( document.isPresent() )
-      return getMailserverServicesFromDocument( document.get(), placeholders );
-    else
-      return Collections.emptyList();
-  }
-
-
-  private CompletableFuture<List<MailserverService>> getMailserverServicesUrlFromDns( String domain, Map<String,
+  private CompletableFuture<List<MailserverService>> getMailserverServicesFromDnsUrl( String domain, Map<String,
       String> placeholders ) {
 
     return CompletableFuture.supplyAsync( () -> {
@@ -179,8 +170,18 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   }
 
 
-  private List<MailserverService> getMailserverServicesFromDocument( Document document,
-                                                                     Map<String, String> placeholders ) {
+  private List<MailserverService> getMailserverServicesFromUrl( String url, Map<String, String> placeholders ) {
+
+    var document = getDocumentFromUrl( url );
+    if( document.isPresent() )
+      return getMailserverServicesFromDocument( document.get(), placeholders );
+    else
+      return Collections.emptyList();
+  }
+
+
+  private static List<MailserverService> getMailserverServicesFromDocument( Document document,
+                                                                            Map<String, String> placeholders ) {
 
     if( !document.getDocumentElement().getNodeName().equals( EL_ROOT ) ) {
       LOG.debug( "Document root {} must equal {}!", document.getDocumentElement().getNodeName(), EL_ROOT );
@@ -189,13 +190,13 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
     var oAuth2s = getOAuth2sFromDocument( document, placeholders );
 
-    return getMailserverServices( document.getDocumentElement(), placeholders, oAuth2s );
+    return getMailserverServicesFromDocumentElement( document.getDocumentElement(), placeholders, oAuth2s );
   }
 
 
-  private static List<MailserverService> getMailserverServices( Element documentElement,
-                                                                Map<String, String> placeholders,
-                                                                Set<OAuth2> oAuth2s ) {
+  private static List<MailserverService> getMailserverServicesFromDocumentElement( Element documentElement,
+                                                                                   Map<String, String> placeholders,
+                                                                                   Set<OAuth2> oAuth2s ) {
     // @formatter:off
     return getElementStreamOf( documentElement.getChildNodes() )
         .filter( e -> e.getNodeName().equalsIgnoreCase( EL_1_EMAIL_PROVIDER ) )
@@ -206,12 +207,13 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   }
 
 
-  private static List<MailserverService> getMailserverServicesFromEmailProvider( Element emailProvider, Map<String,
-      String> placeholders, Set<OAuth2> oAuth2s ) {
+  private static List<MailserverService> getMailserverServicesFromEmailProvider( Element emailProviderElement,
+                                                                                 Map<String, String> placeholders,
+                                                                                 Set<OAuth2> oAuth2s ) {
 
     // @formatter:off
-    return getElementStreamOf( emailProvider.getChildNodes() )
-        .map( e -> getMailserverService( e, placeholders, oAuth2s ) )
+    return getElementStreamOf( emailProviderElement.getChildNodes() )
+        .map( e -> getMailserverServiceFromElement( e, placeholders, oAuth2s ) )
         .filter( Optional::isPresent )
         .map( Optional::get )
         .toList();
@@ -219,26 +221,26 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   }
 
 
-  private static Optional<MailserverService> getMailserverService( Element element, Map<String, String> placeholders,
-                                                                   Set<OAuth2> oAuth2s ) {
+  private static Optional<MailserverService> getMailserverServiceFromElement( Element serverElement, Map<String,
+      String> placeholders, Set<OAuth2> oAuth2s ) {
 
-    var mailserverService = createMozillaAutoconfMailserverService( element );
+    var mailserverService = createMailserverServiceForProtocol( serverElement );
     if( mailserverService == null )
       return Optional.empty();
 
-    getElementStreamOf( element.getChildNodes() ).forEach( t -> {
-      if( t.getNodeName().equalsIgnoreCase( EL_3_HOSTNAME ) )
-        mailserverService.setHost( replacePlaceholders( t.getTextContent(), placeholders ) );
-      else if( t.getNodeName().equalsIgnoreCase( EL_3_PORT ) )
-        mailserverService.setPort( Integer.parseInt( t.getTextContent() ) );
-      else if( t.getNodeName().equalsIgnoreCase( EL_3_SOCKET_TYPE ) )
-        mailserverService.setSocketType( SocketType.parse( t.getTextContent() ) );
-      else if( t.getNodeName().equalsIgnoreCase( EL_3_AUTHENTICATION ) )
-        mailserverService.addAuthentication( Authentication.parse( t.getTextContent() ) );
-      else if( t.getNodeName().equalsIgnoreCase( EL_3_USERNAME ) )
-        mailserverService.setUsername( replacePlaceholders( t.getTextContent(), placeholders ) );
-      else if( t.getNodeName().equalsIgnoreCase( EL_3_PASSWORD ) )
-        mailserverService.setPassword( replacePlaceholders( t.getTextContent(), placeholders ) );
+    getElementStreamOf( serverElement.getChildNodes() ).forEach( c -> {
+      if( c.getNodeName().equalsIgnoreCase( EL_3_HOSTNAME ) )
+        mailserverService.setHost( replacePlaceholders( c.getTextContent(), placeholders ) );
+      else if( c.getNodeName().equalsIgnoreCase( EL_3_PORT ) )
+        mailserverService.setPort( Integer.parseInt( c.getTextContent() ) );
+      else if( c.getNodeName().equalsIgnoreCase( EL_3_SOCKET_TYPE ) )
+        mailserverService.setSocketType( SocketType.parse( c.getTextContent() ) );
+      else if( c.getNodeName().equalsIgnoreCase( EL_3_AUTHENTICATION ) )
+        mailserverService.addAuthentication( Authentication.parse( c.getTextContent() ) );
+      else if( c.getNodeName().equalsIgnoreCase( EL_3_USERNAME ) )
+        mailserverService.setUsername( replacePlaceholders( c.getTextContent(), placeholders ) );
+      else if( c.getNodeName().equalsIgnoreCase( EL_3_PASSWORD ) )
+        mailserverService.setPassword( replacePlaceholders( c.getTextContent(), placeholders ) );
     } );
 
     mailserverService.addAllOAuth2s( oAuth2s );
@@ -247,9 +249,9 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   }
 
 
-  private static MozillaAutoconfMailserverServiceImpl createMozillaAutoconfMailserverService( Element element ) {
+  private static MozillaAutoconfMailserverServiceImpl createMailserverServiceForProtocol( Element serverElement ) {
 
-    var protocol = getProtocolFromElement( element );
+    var protocol = getProtocolFromElement( serverElement );
     if( protocol == null )
       return null;
 
@@ -260,18 +262,18 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   }
 
 
-  private static Protocol getProtocolFromElement( Element element ) {
+  private static Protocol getProtocolFromElement( Element serverElement ) {
 
-    if( !element.hasAttribute( "type" ) )
+    if( !serverElement.hasAttribute( "type" ) )
       return null;
-    var type = element.getAttribute( "type" );
+    var type = serverElement.getAttribute( "type" );
 
-    if( element.getNodeName().equalsIgnoreCase( EL_2_INCOMING_SERVER ) ) {
+    if( serverElement.getNodeName().equalsIgnoreCase( EL_2_INCOMING_SERVER ) ) {
       if( type.equalsIgnoreCase( "imap" ) )
         return Protocol.IMAP;
       else if( type.equalsIgnoreCase( "pop3" ) )
         return Protocol.POP3;
-    } else if( element.getNodeName().equalsIgnoreCase( EL_2_OUTGOING_SERVER ) && type.equalsIgnoreCase( "smtp" ) ) {
+    } else if( serverElement.getNodeName().equalsIgnoreCase( EL_2_OUTGOING_SERVER ) && type.equalsIgnoreCase( "smtp" ) ) {
       return Protocol.SMTP;
     }
     return null;
@@ -282,17 +284,17 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
     // @formatter:off
     return getElementStreamOf( document.getDocumentElement().getChildNodes() )
-        .filter( e -> e.getNodeName().equalsIgnoreCase( EL_1_OAUTH2 ) )
-        .map( e -> getOAuth2FromElement( e, placeholders ) )
+        .filter( element -> element.getNodeName().equalsIgnoreCase( EL_1_OAUTH2 ) )
+        .map( oauth2Element -> getOAuth2FromElement( oauth2Element, placeholders ) )
         .collect( Collectors.toSet() );
     // @formatter:on
   }
 
 
-  private static OAuth2 getOAuth2FromElement( Element element, Map<String, String> placeholders ) {
+  private static OAuth2 getOAuth2FromElement( Element oauth2Element, Map<String, String> placeholders ) {
 
     var oAuth2 = new OAuth2Impl();
-    getElementStreamOf( element.getChildNodes() ).forEach( t -> {
+    getElementStreamOf( oauth2Element.getChildNodes() ).forEach( t -> {
       if( t.getNodeName().equalsIgnoreCase( EL_2_ISSUER ) )
         oAuth2.setIssuer( replacePlaceholders( t.getTextContent(), placeholders ) );
       else if( t.getNodeName().equalsIgnoreCase( EL_2_SCOPE ) )
