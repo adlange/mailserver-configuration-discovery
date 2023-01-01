@@ -11,7 +11,7 @@ import de.adrianlange.mcd.model.SrvRecordMailserverService
 import de.adrianlange.mcd.strategy.EmailAddress
 import spock.lang.Specification
 
-class MailserverConfigurationDiscoverySrvSpec extends Specification {
+class MailserverConfigurationDiscoverySpec extends Specification {
 
     def "test lookup all SRV records"() {
 
