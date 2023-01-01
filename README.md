@@ -111,6 +111,8 @@ for( MailserverService service : services ) {
 
 ### 0.0.2
 
+* add support for Mozilla Autoconf
+
 ### 0.0.1
 
 * initial release with RFC 6186 support
