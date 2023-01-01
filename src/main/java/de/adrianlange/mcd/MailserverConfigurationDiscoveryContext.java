@@ -1,6 +1,7 @@
 package de.adrianlange.mcd;
 
 import de.adrianlange.mcd.model.ConfigurationMethod;
+import de.adrianlange.mcd.model.Protocol;
 
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -45,6 +46,14 @@ public interface MailserverConfigurationDiscoveryContext {
 
 
   enum DiscoveryScope {
-    SUBMISSION, RECEPTION
+    SUBMISSION, RECEPTION;
+
+
+    public static DiscoveryScope get( Protocol protocol ) {
+      return switch( protocol ) {
+        case SMTP -> SUBMISSION;
+        case IMAP, POP3 -> RECEPTION;
+      };
+    }
   }
 }

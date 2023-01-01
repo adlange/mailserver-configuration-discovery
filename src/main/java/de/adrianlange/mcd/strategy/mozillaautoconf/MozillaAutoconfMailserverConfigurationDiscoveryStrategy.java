@@ -1,6 +1,7 @@
 package de.adrianlange.mcd.strategy.mozillaautoconf;
 
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext;
+import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext.DiscoveryScope;
 import de.adrianlange.mcd.infrastructure.dns.TxtDnsResolver;
 import de.adrianlange.mcd.infrastructure.dns.TxtDnsResolverImpl;
 import de.adrianlange.mcd.infrastructure.xml.XmlDocumentUrlReader;
@@ -172,11 +173,13 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
   private List<MailserverService> getMailserverServicesFromUrl( String url, Map<String, String> placeholders ) {
 
-    var document = getDocumentFromUrl( url );
-    if( document.isPresent() )
-      return getMailserverServicesFromDocument( document.get(), placeholders );
-    else
-      return Collections.emptyList();
+    // @formatter:off
+    return getDocumentFromUrl( url ).map(
+        document -> getMailserverServicesFromDocument( document, placeholders ).stream()
+            .filter( s -> context.getDiscoveryScopes().contains( DiscoveryScope.get( s.getProtocol() ) ) )
+            .toList() )
+        .orElse( Collections.emptyList() );
+    // @formatter:on
   }
 
 
