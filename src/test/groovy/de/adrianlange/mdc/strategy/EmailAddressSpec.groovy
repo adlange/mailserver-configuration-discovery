@@ -8,7 +8,7 @@ class EmailAddressSpec extends Specification {
     def "create EmailAddress from string #emailAddress"() {
 
         when:
-        def email = EmailAddress.of(emailAddress)
+        def email = EmailAddress.of( emailAddress )
 
         then:
         email.localPart == local
@@ -28,23 +28,23 @@ class EmailAddressSpec extends Specification {
 
     def "create valid EmailAddress #emailAddress"() {
         when:
-        EmailAddress.of(emailAddress)
+        EmailAddress.of( emailAddress )
 
         then:
         noExceptionThrown()
 
         where:
-        emailAddress << ["foo@bar", "foo.bar+baz@example.com", "Hans123@invalid", "\"Fo o\"@bar.de", "\"Foo@Baz\"@bar.de", "12334567890+x@example.com"]
+        emailAddress << [ "foo@bar", "foo.bar+baz@example.com", "Hans123@invalid", "\"Fo o\"@bar.de", "\"Foo@Baz\"@bar.de", "12334567890+x@example.com" ]
     }
 
     def "create invalid EmailAddress #emailAddress"() {
         when:
-        EmailAddress.of(emailAddress)
+        EmailAddress.of( emailAddress )
 
         then:
-        thrown(IllegalArgumentException)
+        thrown( IllegalArgumentException )
 
         where:
-        emailAddress << ["fo o@bar", "fo@o@bar", "fo\"o@localhost", "foo@bar baz", "foo@127.0.0.1", "foo@[123.6.5]", "foo@[2001:db8:1ff::a0b:dbd0]"]
+        emailAddress << [ "fo o@bar", "fo@o@bar", "fo\"o@localhost", "foo@bar baz", "foo@127.0.0.1", "foo@[123.6.5]", "foo@[2001:db8:1ff::a0b:dbd0]" ]
     }
 }

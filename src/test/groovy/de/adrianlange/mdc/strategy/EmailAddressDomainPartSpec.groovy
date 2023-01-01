@@ -8,7 +8,7 @@ class EmailAddressDomainPartSpec extends Specification {
     def "create DomainPart of domain #domain"() {
 
         when:
-        def domainPart = EmailAddress.DomainPart.of(domain)
+        def domainPart = EmailAddress.DomainPart.of( domain )
 
         then:
         domainPart.toIdn() == idnDomain
@@ -25,7 +25,7 @@ class EmailAddressDomainPartSpec extends Specification {
     def "create DomainPart of unicode domain #unicodeDomain"() {
 
         when:
-        def domainPart = EmailAddress.DomainPart.ofUnicode(unicodeDomain)
+        def domainPart = EmailAddress.DomainPart.ofUnicode( unicodeDomain )
 
         then:
         domainPart.toIdn() == idnDomain
@@ -41,17 +41,17 @@ class EmailAddressDomainPartSpec extends Specification {
     def "create DomainPart from unicode null"() {
 
         when:
-        EmailAddress.DomainPart.ofUnicode(null)
+        EmailAddress.DomainPart.ofUnicode( null )
 
         then:
-        def e = thrown(IllegalArgumentException)
+        def e = thrown( IllegalArgumentException )
         e.message == "unicodeDomainPart must not be null!"
     }
 
     def "create DomainPart of IDN domain #idnDomain"() {
 
         when:
-        def domainPart = EmailAddress.DomainPart.ofIdn(idnDomain)
+        def domainPart = EmailAddress.DomainPart.ofIdn( idnDomain )
 
         then:
         domainPart.toIdn() == idnDomain
@@ -67,31 +67,31 @@ class EmailAddressDomainPartSpec extends Specification {
     def "create DomainPart from IDN null"() {
 
         when:
-        EmailAddress.DomainPart.ofIdn(null)
+        EmailAddress.DomainPart.ofIdn( null )
 
         then:
-        def e = thrown(IllegalArgumentException)
+        def e = thrown( IllegalArgumentException )
         e.message == "idnDomainPart must not be null!"
     }
 
     def "test creating valid domain #domain"() {
         when:
-        EmailAddress.DomainPart.of(domain)
+        EmailAddress.DomainPart.of( domain )
         then:
         noExceptionThrown()
 
         where:
-        domain << ["localhost", "adrianlange.de", "sub.ädrianlange.fr", "xn--sb-xka.xn--adrinlnge-y2a4r.fr"]
+        domain << [ "localhost", "adrianlange.de", "sub.ädrianlange.fr", "xn--sb-xka.xn--adrinlnge-y2a4r.fr" ]
     }
 
     def "test creating invalid domain #domain"() {
         when:
-        EmailAddress.DomainPart.of(domain)
+        EmailAddress.DomainPart.of( domain )
         then:
-        def e = thrown(IllegalArgumentException)
+        def e = thrown( IllegalArgumentException )
         e.message == "Domain " + domain + " is not valid!"
 
         where:
-        domain << ["local host", "foo.invalid", "foo@bar"]
+        domain << [ "local host", "foo.invalid", "foo@bar" ]
     }
 }

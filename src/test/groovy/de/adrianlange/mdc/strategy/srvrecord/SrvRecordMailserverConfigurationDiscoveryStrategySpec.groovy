@@ -19,21 +19,21 @@ class SrvRecordMailserverConfigurationDiscoveryStrategySpec extends Specificatio
 
         given:
         def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods(ConfigurationMethod.RFC_61186)
+                .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
                 .build()
-        def srvDnsResolver = Mock(SrvDnsResolver)
-        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy(context)
+        def srvDnsResolver = Mock( SrvDnsResolver )
+        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy( context )
         strategy.srvDnsResolver = srvDnsResolver
 
         when:
-        def configs = strategy.getMailserverServices(EmailAddress.DomainPart.of("example.com"))
+        def configs = strategy.getMailserverServices( EmailAddress.DomainPart.of( "example.com" ) )
 
         then:
-        1 * srvDnsResolver.getSrvRecords("example.com", "_submission") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imap") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imaps") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3s") >> []
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_submission" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imap" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imaps" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3s" ) >> [ ]
         0 * _
         and:
         configs.isEmpty()
@@ -43,19 +43,19 @@ class SrvRecordMailserverConfigurationDiscoveryStrategySpec extends Specificatio
 
         given:
         def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods(ConfigurationMethod.RFC_61186)
-                .withDiscoveryScopes(MailserverConfigurationDiscoveryContext.DiscoveryScope.SUBMISSION)
+                .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
+                .withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope.SUBMISSION )
                 .build()
-        def srvDnsResolver = Mock(SrvDnsResolver)
-        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy(context)
+        def srvDnsResolver = Mock( SrvDnsResolver )
+        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy( context )
         strategy.srvDnsResolver = srvDnsResolver
 
         when:
-        def configs = strategy.getMailserverServices(EmailAddress.DomainPart.of("example.com"))
+        def configs = strategy.getMailserverServices( EmailAddress.DomainPart.of( "example.com" ) )
 
         then:
-        1 * srvDnsResolver.getSrvRecords("example.com", "_submission") >> [
-                new SRVRecord(Name.fromString("example.com."), DClass.IN, 3600, 0, 1, 465, Name.fromString("smtp.example.com."))
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_submission" ) >> [
+                new SRVRecord( Name.fromString( "example.com." ), DClass.IN, 3600, 0, 1, 465, Name.fromString( "smtp.example.com." ) )
         ]
         0 * _
         and:
@@ -75,18 +75,18 @@ class SrvRecordMailserverConfigurationDiscoveryStrategySpec extends Specificatio
 
         given:
         def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods(ConfigurationMethod.RFC_61186)
-                .withDiscoveryScopes(MailserverConfigurationDiscoveryContext.DiscoveryScope.SUBMISSION)
+                .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
+                .withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope.SUBMISSION )
                 .build()
-        def srvDnsResolver = Mock(SrvDnsResolver)
-        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy(context)
+        def srvDnsResolver = Mock( SrvDnsResolver )
+        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy( context )
         strategy.srvDnsResolver = srvDnsResolver
 
         when:
-        def configs = strategy.getMailserverServices(EmailAddress.DomainPart.of("example.com"))
+        def configs = strategy.getMailserverServices( EmailAddress.DomainPart.of( "example.com" ) )
 
         then:
-        1 * srvDnsResolver.getSrvRecords("example.com", "_submission") >> []
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_submission" ) >> [ ]
         0 * _
         and:
         configs.isEmpty()
@@ -97,21 +97,21 @@ class SrvRecordMailserverConfigurationDiscoveryStrategySpec extends Specificatio
 
         given:
         def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods(ConfigurationMethod.RFC_61186)
-                .withDiscoveryScopes(MailserverConfigurationDiscoveryContext.DiscoveryScope.RECEPTION)
+                .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
+                .withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope.RECEPTION )
                 .build()
-        def srvDnsResolver = Mock(SrvDnsResolver)
-        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy(context)
+        def srvDnsResolver = Mock( SrvDnsResolver )
+        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy( context )
         strategy.srvDnsResolver = srvDnsResolver
 
         when:
-        def configs = strategy.getMailserverServices(EmailAddress.DomainPart.of("example.com"))
+        def configs = strategy.getMailserverServices( EmailAddress.DomainPart.of( "example.com" ) )
 
         then:
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imap") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imaps") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3s") >> []
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imap" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imaps" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3s" ) >> [ ]
         0 * _
         and:
         configs.isEmpty()
@@ -122,29 +122,33 @@ class SrvRecordMailserverConfigurationDiscoveryStrategySpec extends Specificatio
 
         given:
         def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods(ConfigurationMethod.RFC_61186)
-                .withDiscoveryScopes(MailserverConfigurationDiscoveryContext.DiscoveryScope.RECEPTION)
+                .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
+                .withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope.RECEPTION )
                 .build()
-        def srvDnsResolver = Mock(SrvDnsResolver)
-        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy(context)
+        def srvDnsResolver = Mock( SrvDnsResolver )
+        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy( context )
         strategy.srvDnsResolver = srvDnsResolver
 
         when:
-        def configs = strategy.getMailserverServices(EmailAddress.DomainPart.of("example.com"))
+        def configs = strategy.getMailserverServices( EmailAddress.DomainPart.of( "example.com" ) )
 
         then:
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imap") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imaps") >> [
-                new SRVRecord(Name.fromString("example.com."), DClass.IN, 300, 0, 1, 993, Name.fromString("imap.example.com.")),
-                new SRVRecord(Name.fromString("example.com."), DClass.IN, 300, 10, 1, 19993, Name.fromString("imap2.example.com."))
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imap" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imaps" ) >> [
+                new SRVRecord( Name.fromString( "example.com." ), DClass.IN, 300, 0, 1, 993, Name.fromString( "imap.example.com." ) ),
+                new SRVRecord( Name.fromString( "example.com." ), DClass.IN, 300, 10, 1, 19993, Name.fromString( "imap2.example.com." ) )
         ]
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3s") >> []
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3s" ) >> [ ]
         0 * _
         and:
         configs.size() == 2
-        configs.findAll { it.port == 993 }.size() == 1
-        configs.findAll { it.port == 19993 }.size() == 1
+        configs.findAll {
+            it.port == 993
+        }.size() == 1
+        configs.findAll {
+            it.port == 19993
+        }.size() == 1
     }
 
 
@@ -152,22 +156,22 @@ class SrvRecordMailserverConfigurationDiscoveryStrategySpec extends Specificatio
 
         given:
         def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods(ConfigurationMethod.RFC_61186)
-                .withDiscoveryScopes(MailserverConfigurationDiscoveryContext.DiscoveryScope.RECEPTION)
+                .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
+                .withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope.RECEPTION )
                 .build()
-        def srvDnsResolver = Mock(SrvDnsResolver)
-        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy(context)
+        def srvDnsResolver = Mock( SrvDnsResolver )
+        def strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy( context )
         strategy.srvDnsResolver = srvDnsResolver
 
         when:
-        def configs = strategy.getMailserverServices(EmailAddress.DomainPart.of("example.com"))
+        def configs = strategy.getMailserverServices( EmailAddress.DomainPart.of( "example.com" ) )
 
         then:
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imap") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_imaps") >> []
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3") >> [
-                new SRVRecord(Name.fromString("example.com."), DClass.IN, 300, 0, 1, 110, Name.fromString("."))]
-        1 * srvDnsResolver.getSrvRecords("example.com", "_pop3s") >> []
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imap" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_imaps" ) >> [ ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3" ) >> [
+                new SRVRecord( Name.fromString( "example.com." ), DClass.IN, 300, 0, 1, 110, Name.fromString( "." ) ) ]
+        1 * srvDnsResolver.getSrvRecords( "example.com", "_pop3s" ) >> [ ]
         0 * _
         and:
         configs.size() == 0
