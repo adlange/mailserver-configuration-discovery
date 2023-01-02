@@ -14,8 +14,9 @@ import de.adrianlange.mdc.util.DnsHelper
 import de.adrianlange.mdc.util.TestHelper
 import spock.lang.Specification
 
-class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specification {
+class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec extends Specification {
 
+    private static final String EMAIL_ADDRESS = "alan@example.com"
     private static final String DOMAIN = "example.com"
 
     private static final String AUTOCONF_URL_1A = "http://autoconfig.%s/mail/config-v1.1.xml"
@@ -41,11 +42,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
-            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
-            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS ) ) >> Optional.empty()
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
             0 * _
@@ -66,11 +67,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
-            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
-            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
             0 * _
@@ -103,11 +104,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
-            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
-            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS ) ) >> Optional.empty()
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
             0 * _
@@ -140,11 +141,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
-            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
-            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS ) ) >> Optional.empty()
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ DnsHelper.createTXTRecord( DOMAIN, AUTOCONF_URL_3 ) ]
@@ -178,11 +179,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
-            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
-            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ DnsHelper.createTXTRecord( DOMAIN, AUTOCONF_URL_3 ) ]
@@ -221,11 +222,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
-            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
-            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_SIMPLE ) )
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) )
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
@@ -272,11 +273,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
-            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
-            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS ) ) >> Optional.empty()
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_OAUTH2 ) )
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) )
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
@@ -303,7 +304,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
                 && smtp.protocol == Protocol.SMTP
                 && smtp.host == "smtp.googlemail.com"
                 && smtp.port == 587
-                && smtp.username == "%EMAILLOCALPART%"
+                && smtp.username == "alan"
                 && smtp.password == "optional: the user's password"
                 && smtp.socketType == SocketType.STARTTLS
                 && smtp.authentications.size() == 1
@@ -331,7 +332,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
                 && smtp.protocol == Protocol.SMTP
                 && smtp.host == "smtp.example.com"
                 && smtp.port == 465
-                && smtp.username == "%EMAILADDRESS%"
+                && smtp.username == EMAIL_ADDRESS
                 && smtp.password == null
                 && smtp.socketType == SocketType.SSL
                 && smtp.authentications.size() == 2
@@ -349,7 +350,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
                 && pop3.protocol == Protocol.POP3
                 && pop3.host == "pop.example.com"
                 && pop3.port == 995
-                && pop3.username == "%EMAILLOCALPART%"
+                && pop3.username == "alan"
                 && pop3.password == "optional: the user's password"
                 && pop3.socketType == SocketType.SSL
                 && pop3.authentications.size() == 1
@@ -363,7 +364,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
                 && imap.protocol == Protocol.IMAP
                 && imap.host == "imap.example.com"
                 && imap.port == 993
-                && imap.username == "%EMAILLOCALPART%"
+                && imap.username == "alan"
                 && imap.password == null
                 && imap.socketType == SocketType.SSL
                 && imap.authentications.size() == 1
@@ -377,7 +378,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
                 && imap.protocol == Protocol.IMAP
                 && imap.host == "imap.example.com"
                 && imap.port == 993
-                && imap.username == "%EMAILADDRESS%"
+                && imap.username == EMAIL_ADDRESS
                 && imap.password == null
                 && imap.socketType == SocketType.SSL
                 && imap.authentications.size() == 2
