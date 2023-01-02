@@ -41,7 +41,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
@@ -66,7 +66,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
@@ -103,7 +103,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
@@ -140,7 +140,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
@@ -178,7 +178,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
@@ -221,7 +221,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
@@ -272,7 +272,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
             1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()

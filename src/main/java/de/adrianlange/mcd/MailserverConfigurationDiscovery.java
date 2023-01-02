@@ -41,7 +41,7 @@ public class MailserverConfigurationDiscovery {
     if( context == null )
       throw new IllegalArgumentException( "Context must not be null!" );
 
-    var stream = getStrategies( context ).stream().map( s -> s.getMailserverServicesAsync( emailAddress ) );
+    var stream = getStrategies( context ).stream().map( s -> s.getMailserverServices( emailAddress ) );
     return waitForAllAndMerge( stream );
   }
 
@@ -62,7 +62,7 @@ public class MailserverConfigurationDiscovery {
       throw new IllegalArgumentException( "Context must not be null!" );
 
     var stream =
-        getStrategies( context ).stream().map( s -> s.getMailserverServicesAsync( EmailAddress.DomainPart.of( domain ) ) );
+        getStrategies( context ).stream().map( s -> s.getMailserverServices( EmailAddress.DomainPart.of( domain ) ) );
     return waitForAllAndMerge( stream );
   }
 
