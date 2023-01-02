@@ -99,6 +99,7 @@ for( MailserverService service : services ) {
 ### 0.0.2
 
 * add support for Mozilla Autoconf
+* remove synchronous discovery to minimize complexity
 
 ### 0.0.1
 
