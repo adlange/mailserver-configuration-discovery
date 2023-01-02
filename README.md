@@ -5,10 +5,10 @@ A Java library for looking up published mailserver configurations for clients fo
 ## Supported discovery methods:
 
 * SRV records ([RFC 6186](https://www.rfc-editor.org/rfc/rfc6186))
+* [Mozilla Autoconf](https://wiki.mozilla.org/Thunderbird:Autoconfiguration)
 
 Possibly supported soon:
 
-* Mozilla Autoconf
 * Microsoft Office Autodiscover v1 (only for http(s) URIs)
 
 Microsoft Office Autodiscover v2 is not expected to be supported in the future.
@@ -91,6 +91,8 @@ var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
 for( MailserverService service : services ) {
   if( service instanceof SrvRecordMailserverService srvRecordMailserverService ) {
     // ...
+  } else if( service instanceof MozillaAutoconfMailserverService mozillaAutoconfMailserverService ) {
+    // ...
   }
 }
 ```
@@ -102,6 +104,9 @@ var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
 for( MailserverService service : services ) {
   if( service.getConfigurationMethod() == ConfigurationMethod.RFC_61186 ) {
     var srvRecordMailserverService = (SrvRecordMailserverService) service;
+    // ...
+  } else if( service.getConfigurationMethod() == ConfigurationMethod.MOZILLA_AUTOCONF ) {
+    var mozillaAutoconfMailserverService = (MozillaAutoconfMailserverService) service;
     // ...
   }
 }
