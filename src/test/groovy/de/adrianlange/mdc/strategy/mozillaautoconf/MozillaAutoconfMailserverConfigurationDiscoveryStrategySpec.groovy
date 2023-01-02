@@ -25,6 +25,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
 
     private static final String MOCK_MOZILLA_EXAMPLE = "/autoconf/mozilla-example.xml"
     private static final String MOCK_SIMPLE = "/autoconf/simple.xml"
+    private static final String MOCK_OAUTH2 = "/autoconf/oauth2.xml"
 
 
     def "test no autoconf document exist"() {
@@ -258,6 +259,44 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
             isSimpleImap( imap[0] )
     }
 
+    def "test reading document with OAuth2 information"() {
+
+        given:
+            def context = new MailserverConfigurationDiscoveryContextBuilder()
+                    .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+                    .build()
+            def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
+            def txtDnsResolver = Mock( TxtDnsResolver )
+            strategy.txtDnsResolver = txtDnsResolver
+            def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
+            strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
+
+        when:
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+
+        then:
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_OAUTH2 ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) )
+            1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
+            0 * _
+        and:
+            configs.size() == 2
+
+        when:
+            def smtp = configs.find {
+                it.protocol == Protocol.SMTP
+            } as MozillaAutoconfMailserverService
+            def imap = configs.find {
+                it.protocol == Protocol.IMAP
+            } as MozillaAutoconfMailserverService
+
+        then:
+            isOAuth2Smtp( smtp )
+            isOAuth2Imap( imap )
+    }
+
 
     private static boolean isMozillaDefaultSmtp( MozillaAutoconfMailserverService smtp ) {
         return smtp.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
@@ -287,6 +326,24 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
     }
 
 
+    private static boolean isOAuth2Smtp( MozillaAutoconfMailserverService smtp ) {
+        return smtp.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
+                && smtp.protocol == Protocol.SMTP
+                && smtp.host == "smtp.example.com"
+                && smtp.port == 465
+                && smtp.username == "%EMAILADDRESS%"
+                && smtp.password == null
+                && smtp.socketType == SocketType.SSL
+                && smtp.authentications.size() == 2
+                && smtp.authentications.containsAll( Authentication.OAUTH2, Authentication.PASSWORD_CLEARTEXT )
+                && smtp.getOAuth2s().size() == 1
+                && smtp.getOAuth2s()[0].issuer == "login.yahoo.com"
+                && smtp.getOAuth2s()[0].scope == "mail-w"
+                && smtp.getOAuth2s()[0].authUrl == "https://api.login.yahoo.com/oauth2/request_auth"
+                && smtp.getOAuth2s()[0].tokenUrl == "https://api.login.yahoo.com/oauth2/get_token"
+    }
+
+
     private static boolean isMozillaDefaultPop3( MozillaAutoconfMailserverService pop3 ) {
         return pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
                 && pop3.protocol == Protocol.POP3
@@ -301,16 +358,34 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
     }
 
 
-    private static boolean isSimpleImap( MozillaAutoconfMailserverService pop3 ) {
-        return pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
-                && pop3.protocol == Protocol.IMAP
-                && pop3.host == "imap.example.com"
-                && pop3.port == 993
-                && pop3.username == "%EMAILLOCALPART%"
-                && pop3.password == null
-                && pop3.socketType == SocketType.SSL
-                && pop3.authentications.size() == 1
-                && pop3.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
-                && pop3.getOAuth2s().isEmpty()
+    private static boolean isSimpleImap( MozillaAutoconfMailserverService imap ) {
+        return imap.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
+                && imap.protocol == Protocol.IMAP
+                && imap.host == "imap.example.com"
+                && imap.port == 993
+                && imap.username == "%EMAILLOCALPART%"
+                && imap.password == null
+                && imap.socketType == SocketType.SSL
+                && imap.authentications.size() == 1
+                && imap.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
+                && imap.getOAuth2s().isEmpty()
+    }
+
+
+    private static boolean isOAuth2Imap( MozillaAutoconfMailserverService imap ) {
+        return imap.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
+                && imap.protocol == Protocol.IMAP
+                && imap.host == "imap.example.com"
+                && imap.port == 993
+                && imap.username == "%EMAILADDRESS%"
+                && imap.password == null
+                && imap.socketType == SocketType.SSL
+                && imap.authentications.size() == 2
+                && imap.authentications.containsAll( Authentication.OAUTH2, Authentication.PASSWORD_CLEARTEXT )
+                && imap.getOAuth2s().size() == 1
+                && imap.getOAuth2s()[0].issuer == "login.yahoo.com"
+                && imap.getOAuth2s()[0].scope == "mail-w"
+                && imap.getOAuth2s()[0].authUrl == "https://api.login.yahoo.com/oauth2/request_auth"
+                && imap.getOAuth2s()[0].tokenUrl == "https://api.login.yahoo.com/oauth2/get_token"
     }
 }
