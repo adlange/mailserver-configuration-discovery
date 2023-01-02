@@ -1,7 +1,7 @@
 package de.adrianlange.mdc.util
 
+import de.adrianlange.mcd.MailserverConfigurationDiscovery
 import de.adrianlange.mcd.model.MailserverService
-import de.adrianlange.mcd.util.ConcurrencyUtils
 import org.w3c.dom.Document
 
 import javax.xml.parsers.DocumentBuilder
@@ -19,7 +19,7 @@ class TestHelper {
      */
     static <T extends MailserverService> List<T> getResultList( List<CompletableFuture<List<T>>> strategyResult ) {
 
-        return ConcurrencyUtils.waitForAllAndMerge( [ strategyResult ].stream() ) as List<T>
+        return MailserverConfigurationDiscovery.waitForAllAndMerge( [ strategyResult ].stream() ) as List<T>
     }
 
 
