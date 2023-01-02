@@ -33,6 +33,9 @@
       <option name="SPACE_BEFORE_SYNCHRONIZED_PARENTHESES" value="false" />
       <option name="KEEP_SIMPLE_LAMBDAS_IN_ONE_LINE" value="false" />
       <option name="SPACE_WITHIN_ANNOTATION_PARENTHESES" value="true" />
+      <indentOptions>
+        <option name="LABEL_INDENT_SIZE" value="4" />
+      </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="JAVA">
       <option name="RIGHT_MARGIN" value="120" />
