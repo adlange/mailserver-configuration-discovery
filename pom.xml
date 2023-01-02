@@ -211,7 +211,6 @@
                                 <phase>deploy</phase>
                                 <goals>
                                     <goal>deploy</goal>
-                                    <!--<goal>release</goal>-->
                                 </goals>
                             </execution>
                         </executions>

@@ -4,12 +4,14 @@ import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.strategy.EmailAddress;
 import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
+import de.adrianlange.mcd.strategy.mozillaautoconf.MozillaAutoconfMailserverConfigurationDiscoveryStrategy;
 import de.adrianlange.mcd.strategy.srvrecord.SrvRecordMailserverConfigurationDiscoveryStrategy;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 
 /**
@@ -39,14 +41,8 @@ public class MailserverConfigurationDiscovery {
     if( context == null )
       throw new IllegalArgumentException( "Context must not be null!" );
 
-    //@formatter:off
-    return getStrategies( context ).stream()
-        .map( s -> s.getMailserverServicesAsync( emailAddress ) )
-        .flatMap( List::stream )
-        .map( CompletableFuture::join )
-        .flatMap( List::stream )
-        .toList();
-    //@formatter:on
+    var stream = getStrategies( context ).stream().map( s -> s.getMailserverServicesAsync( emailAddress ) );
+    return waitForAllAndMerge( stream );
   }
 
 
@@ -65,14 +61,9 @@ public class MailserverConfigurationDiscovery {
     if( context == null )
       throw new IllegalArgumentException( "Context must not be null!" );
 
-    //@formatter:off
-    return getStrategies( context ).stream()
-        .map( s -> s.getMailserverServicesAsync( EmailAddress.DomainPart.of( domain ) ) )
-        .flatMap( List::stream )
-        .map( CompletableFuture::join )
-        .flatMap( List::stream )
-        .toList();
-    //@formatter:on
+    var stream =
+        getStrategies( context ).stream().map( s -> s.getMailserverServicesAsync( EmailAddress.DomainPart.of( domain ) ) );
+    return waitForAllAndMerge( stream );
   }
 
 
@@ -107,11 +98,33 @@ public class MailserverConfigurationDiscovery {
   private static Set<MailserverConfigurationDiscoveryStrategy> getStrategies( MailserverConfigurationDiscoveryContext context ) {
     Set<MailserverConfigurationDiscoveryStrategy> strategies = new HashSet<>();
 
+    if( context.getConfigurationMethods().contains( ConfigurationMethod.MOZILLA_AUTOCONF ) )
+      strategies.add( new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context ) );
+
     if( context.getConfigurationMethods().contains( ConfigurationMethod.RFC_61186 ) )
       strategies.add( new SrvRecordMailserverConfigurationDiscoveryStrategy( context ) );
 
-    // TODO add strategies for other configuration methods
+    // TODO add autodiscover method
 
     return strategies;
+  }
+
+
+  /**
+   * Waits for all given {@link CompletableFuture} and merges them into a List of {@link MailserverService}.
+   *
+   * @param stream Result of a {@link de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy}
+   * @param <T>    An implementation of {@link MailserverService}
+   * @return A list of {@link MailserverService}
+   */
+  private static <T extends MailserverService> List<T> waitForAllAndMerge( Stream<List<CompletableFuture<List<T>>>> stream ) {
+
+    //@formatter:off
+    return stream
+        .flatMap( List::stream )
+        .map( CompletableFuture::join )
+        .flatMap( List::stream )
+        .toList();
+    //@formatter:on
   }
 }
