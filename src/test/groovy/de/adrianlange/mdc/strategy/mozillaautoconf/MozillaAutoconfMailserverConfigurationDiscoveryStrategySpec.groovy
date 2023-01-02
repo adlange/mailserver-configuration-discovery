@@ -84,28 +84,8 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
         } as MozillaAutoconfMailserverService
 
         then:
-        smtp.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
-        smtp.protocol == Protocol.SMTP
-        smtp.host == "smtp.googlemail.com"
-        smtp.port == 587
-        smtp.username == "%EMAILLOCALPART%"
-        smtp.password == "optional: the user's password"
-        smtp.socketType == SocketType.STARTTLS
-        smtp.authentications.size() == 1
-        smtp.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
-        smtp.getOAuth2s().isEmpty()
-
-        and:
-        pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
-        pop3.protocol == Protocol.POP3
-        pop3.host == "pop.example.com"
-        pop3.port == 995
-        pop3.username == "%EMAILLOCALPART%"
-        pop3.password == "optional: the user's password"
-        pop3.socketType == SocketType.SSL
-        pop3.authentications.size() == 1
-        pop3.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
-        pop3.getOAuth2s().isEmpty()
+        isMozillaDefaultSmtp( smtp )
+        isMozillaDefaultPop3( pop3 )
     }
 
     def "test one autoconf document exist 2"() {
@@ -141,28 +121,8 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
         } as MozillaAutoconfMailserverService
 
         then:
-        smtp.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
-        smtp.protocol == Protocol.SMTP
-        smtp.host == "smtp.googlemail.com"
-        smtp.port == 587
-        smtp.username == "%EMAILLOCALPART%"
-        smtp.password == "optional: the user's password"
-        smtp.socketType == SocketType.STARTTLS
-        smtp.authentications.size() == 1
-        smtp.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
-        smtp.getOAuth2s().isEmpty()
-
-        and:
-        pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
-        pop3.protocol == Protocol.POP3
-        pop3.host == "pop.example.com"
-        pop3.port == 995
-        pop3.username == "%EMAILLOCALPART%"
-        pop3.password == "optional: the user's password"
-        pop3.socketType == SocketType.SSL
-        pop3.authentications.size() == 1
-        pop3.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
-        pop3.getOAuth2s().isEmpty()
+        isMozillaDefaultSmtp( smtp )
+        isMozillaDefaultPop3( pop3 )
     }
 
     def "test one autoconf document exist 3"() {
@@ -199,27 +159,35 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
         } as MozillaAutoconfMailserverService
 
         then:
-        smtp.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
-        smtp.protocol == Protocol.SMTP
-        smtp.host == "smtp.googlemail.com"
-        smtp.port == 587
-        smtp.username == "%EMAILLOCALPART%"
-        smtp.password == "optional: the user's password"
-        smtp.socketType == SocketType.STARTTLS
-        smtp.authentications.size() == 1
-        smtp.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
-        smtp.getOAuth2s().isEmpty()
+        isMozillaDefaultSmtp( smtp )
+        isMozillaDefaultPop3( pop3 )
+    }
 
-        and:
-        pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
-        pop3.protocol == Protocol.POP3
-        pop3.host == "pop.example.com"
-        pop3.port == 995
-        pop3.username == "%EMAILLOCALPART%"
-        pop3.password == "optional: the user's password"
-        pop3.socketType == SocketType.SSL
-        pop3.authentications.size() == 1
-        pop3.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
-        pop3.getOAuth2s().isEmpty()
+
+    private static boolean isMozillaDefaultSmtp( MozillaAutoconfMailserverService smtp ) {
+        return smtp.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
+                && smtp.protocol == Protocol.SMTP
+                && smtp.host == "smtp.googlemail.com"
+                && smtp.port == 587
+                && smtp.username == "%EMAILLOCALPART%"
+                && smtp.password == "optional: the user's password"
+                && smtp.socketType == SocketType.STARTTLS
+                && smtp.authentications.size() == 1
+                && smtp.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
+                && smtp.getOAuth2s().isEmpty()
+    }
+
+
+    private static boolean isMozillaDefaultPop3( MozillaAutoconfMailserverService pop3 ) {
+        return pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
+                && pop3.protocol == Protocol.POP3
+                && pop3.host == "pop.example.com"
+                && pop3.port == 995
+                && pop3.username == "%EMAILLOCALPART%"
+                && pop3.password == "optional: the user's password"
+                && pop3.socketType == SocketType.SSL
+                && pop3.authentications.size() == 1
+                && pop3.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
+                && pop3.getOAuth2s().isEmpty()
     }
 }
