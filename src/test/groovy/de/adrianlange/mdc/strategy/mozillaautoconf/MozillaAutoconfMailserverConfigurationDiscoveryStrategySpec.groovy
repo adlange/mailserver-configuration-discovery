@@ -24,143 +24,238 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
     private static final String AUTOCONF_URL_3 = "http://dummy-domain.invalid/autoconfig.xml"
 
     private static final String MOCK_MOZILLA_EXAMPLE = "/autoconf/mozilla-example.xml"
+    private static final String MOCK_SIMPLE = "/autoconf/simple.xml"
 
 
     def "test no autoconf document exist"() {
 
         given:
-        def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
-                .build()
-        def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
-        def txtDnsResolver = Mock( TxtDnsResolver )
-        strategy.txtDnsResolver = txtDnsResolver
-        def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
-        strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
+            def context = new MailserverConfigurationDiscoveryContextBuilder()
+                    .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+                    .build()
+            def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
+            def txtDnsResolver = Mock( TxtDnsResolver )
+            strategy.txtDnsResolver = txtDnsResolver
+            def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
+            strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-        def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
-        0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
-        1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
-        0 * _
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
+            1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
+            0 * _
         and:
-        configs.isEmpty()
+            configs.isEmpty()
     }
 
     def "test one autoconf document exist 1A"() {
 
         given:
-        def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
-                .build()
-        def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
-        def txtDnsResolver = Mock( TxtDnsResolver )
-        strategy.txtDnsResolver = txtDnsResolver
-        def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
-        strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
+            def context = new MailserverConfigurationDiscoveryContextBuilder()
+                    .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+                    .build()
+            def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
+            def txtDnsResolver = Mock( TxtDnsResolver )
+            strategy.txtDnsResolver = txtDnsResolver
+            def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
+            strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-        def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
-        0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
-        1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
-        0 * _
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
+            1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
+            0 * _
         and:
-        configs.size() == 2
+            configs.size() == 2
 
         when:
-        def smtp = configs.find {
-            it.protocol == Protocol.SMTP
-        } as MozillaAutoconfMailserverService
-        def pop3 = configs.find {
-            it.protocol == Protocol.POP3
-        } as MozillaAutoconfMailserverService
+            def smtp = configs.find {
+                it.protocol == Protocol.SMTP
+            } as MozillaAutoconfMailserverService
+            def pop3 = configs.find {
+                it.protocol == Protocol.POP3
+            } as MozillaAutoconfMailserverService
 
         then:
-        isMozillaDefaultSmtp( smtp )
-        isMozillaDefaultPop3( pop3 )
+            isMozillaDefaultSmtp( smtp )
+            isMozillaDefaultPop3( pop3 )
     }
 
     def "test one autoconf document exist 2"() {
 
         given:
-        def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
-                .build()
-        def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
-        def txtDnsResolver = Mock( TxtDnsResolver )
-        strategy.txtDnsResolver = txtDnsResolver
-        def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
-        strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
+            def context = new MailserverConfigurationDiscoveryContextBuilder()
+                    .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+                    .build()
+            def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
+            def txtDnsResolver = Mock( TxtDnsResolver )
+            strategy.txtDnsResolver = txtDnsResolver
+            def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
+            strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-        def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
-        0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
-        1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
-        0 * _
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
+            1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
+            0 * _
         and:
-        configs.size() == 2
+            configs.size() == 2
 
         when:
-        def smtp = configs.find {
-            it.protocol == Protocol.SMTP
-        } as MozillaAutoconfMailserverService
-        def pop3 = configs.find {
-            it.protocol == Protocol.POP3
-        } as MozillaAutoconfMailserverService
+            def smtp = configs.find {
+                it.protocol == Protocol.SMTP
+            } as MozillaAutoconfMailserverService
+            def pop3 = configs.find {
+                it.protocol == Protocol.POP3
+            } as MozillaAutoconfMailserverService
 
         then:
-        isMozillaDefaultSmtp( smtp )
-        isMozillaDefaultPop3( pop3 )
+            isMozillaDefaultSmtp( smtp )
+            isMozillaDefaultPop3( pop3 )
     }
 
     def "test one autoconf document exist 3"() {
 
         given:
-        def context = new MailserverConfigurationDiscoveryContextBuilder()
-                .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
-                .build()
-        def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
-        def txtDnsResolver = Mock( TxtDnsResolver )
-        strategy.txtDnsResolver = txtDnsResolver
-        def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
-        strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
+            def context = new MailserverConfigurationDiscoveryContextBuilder()
+                    .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+                    .build()
+            def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
+            def txtDnsResolver = Mock( TxtDnsResolver )
+            strategy.txtDnsResolver = txtDnsResolver
+            def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
+            strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-        def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
 
         then:
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
-        0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
-        1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
-        1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ DnsHelper.createTXTRecord( DOMAIN, AUTOCONF_URL_3 ) ]
-        0 * _
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.empty()
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
+            1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ DnsHelper.createTXTRecord( DOMAIN, AUTOCONF_URL_3 ) ]
+            0 * _
         and:
-        configs.size() == 2
+            configs.size() == 2
 
         when:
-        def smtp = configs.find {
-            it.protocol == Protocol.SMTP
-        } as MozillaAutoconfMailserverService
-        def pop3 = configs.find {
-            it.protocol == Protocol.POP3
-        } as MozillaAutoconfMailserverService
+            def smtp = configs.find {
+                it.protocol == Protocol.SMTP
+            } as MozillaAutoconfMailserverService
+            def pop3 = configs.find {
+                it.protocol == Protocol.POP3
+            } as MozillaAutoconfMailserverService
 
         then:
-        isMozillaDefaultSmtp( smtp )
-        isMozillaDefaultPop3( pop3 )
+            isMozillaDefaultSmtp( smtp )
+            isMozillaDefaultPop3( pop3 )
+    }
+
+    def "test multiple config documents won't be merged"() {
+
+        given:
+            def context = new MailserverConfigurationDiscoveryContextBuilder()
+                    .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+                    .build()
+            def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
+            def txtDnsResolver = Mock( TxtDnsResolver )
+            strategy.txtDnsResolver = txtDnsResolver
+            def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
+            strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
+
+        when:
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+
+        then:
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.empty()
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
+            1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ DnsHelper.createTXTRecord( DOMAIN, AUTOCONF_URL_3 ) ]
+            0 * _
+        and:
+            configs.size() == 4
+
+        when:
+            def smtp = configs.findAll {
+                it.protocol == Protocol.SMTP
+            } as MozillaAutoconfMailserverService[]
+            def pop3 = configs.findAll {
+                it.protocol == Protocol.POP3
+            } as MozillaAutoconfMailserverService[]
+
+        then:
+            smtp.size() == 2
+            pop3.size() == 2
+        and:
+            isMozillaDefaultSmtp( smtp[0] )
+            isMozillaDefaultSmtp( smtp[1] )
+            isMozillaDefaultPop3( pop3[0] )
+            isMozillaDefaultPop3( pop3[1] )
+    }
+
+    def "test multiple different config documents are found"() {
+
+        given:
+            def context = new MailserverConfigurationDiscoveryContextBuilder()
+                    .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+                    .build()
+            def strategy = new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context )
+            def txtDnsResolver = Mock( TxtDnsResolver )
+            strategy.txtDnsResolver = txtDnsResolver
+            def xmlDocumentUrlReader = Mock( XmlDocumentUrlReader )
+            strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
+
+        when:
+            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.DomainPart.of( DOMAIN ) ) )
+
+        then:
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, "" ) )
+            1 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) >> Optional.of( TestHelper.readDocumentFromFile( MOCK_SIMPLE ) )
+            0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_3 ) )
+            1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ ]
+            0 * _
+        and:
+            configs.size() == 4
+
+        when:
+            def smtpGoogle = configs.findAll {
+                it.protocol == Protocol.SMTP && it.host.contains( "google" )
+            } as MozillaAutoconfMailserverService[]
+            def smtpExample = configs.findAll {
+                it.protocol == Protocol.SMTP && it.host.contains( "example" )
+            } as MozillaAutoconfMailserverService[]
+            def pop3 = configs.findAll {
+                it.protocol == Protocol.POP3
+            } as MozillaAutoconfMailserverService[]
+            def imap = configs.findAll {
+                it.protocol == Protocol.IMAP
+            } as MozillaAutoconfMailserverService[]
+
+        then:
+            smtpGoogle.size() == 1
+            smtpExample.size() == 1
+            pop3.size() == 1
+            imap.size() == 1
+        and:
+            isMozillaDefaultSmtp( smtpGoogle[0] )
+            isSimpleSmtp( smtpExample[0] )
+            isMozillaDefaultPop3( pop3[0] )
+            isSimpleImap( imap[0] )
     }
 
 
@@ -178,6 +273,20 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
     }
 
 
+    private static boolean isSimpleSmtp( MozillaAutoconfMailserverService smtp ) {
+        return smtp.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
+                && smtp.protocol == Protocol.SMTP
+                && smtp.host == "smtp.example.com"
+                && smtp.port == 465
+                && smtp.username == null
+                && smtp.password == null
+                && smtp.socketType == SocketType.SSL
+                && smtp.authentications.size() == 1
+                && smtp.authentications.contains( Authentication.CLIENT_IP_ADDRESS )
+                && smtp.getOAuth2s().isEmpty()
+    }
+
+
     private static boolean isMozillaDefaultPop3( MozillaAutoconfMailserverService pop3 ) {
         return pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
                 && pop3.protocol == Protocol.POP3
@@ -185,6 +294,20 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategySpec extends Specif
                 && pop3.port == 995
                 && pop3.username == "%EMAILLOCALPART%"
                 && pop3.password == "optional: the user's password"
+                && pop3.socketType == SocketType.SSL
+                && pop3.authentications.size() == 1
+                && pop3.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
+                && pop3.getOAuth2s().isEmpty()
+    }
+
+
+    private static boolean isSimpleImap( MozillaAutoconfMailserverService pop3 ) {
+        return pop3.configurationMethod == ConfigurationMethod.MOZILLA_AUTOCONF
+                && pop3.protocol == Protocol.IMAP
+                && pop3.host == "imap.example.com"
+                && pop3.port == 993
+                && pop3.username == "%EMAILLOCALPART%"
+                && pop3.password == null
                 && pop3.socketType == SocketType.SSL
                 && pop3.authentications.size() == 1
                 && pop3.authentications.contains( Authentication.PASSWORD_CLEARTEXT )
