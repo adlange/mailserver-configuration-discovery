@@ -94,31 +94,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
 
   @Override
-  public List<MailserverService> getMailserverServices( EmailAddress emailAddress ) {
-
-    // @formatter:off
-    return getMailserverServicesAsync( emailAddress ).stream()
-        .map( CompletableFuture::join )
-        .flatMap( List::stream )
-        .toList();
-    // @formatter:on
-  }
-
-
-  @Override
-  public List<MailserverService> getMailserverServices( EmailAddress.DomainPart domainPart ) {
-
-    // @formatter:off
-    return getMailserverServicesAsync( domainPart ).stream()
-        .map( CompletableFuture::join )
-        .flatMap( List::stream )
-        .toList();
-    // @formatter:on
-  }
-
-
-  @Override
-  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress emailAddress ) {
+  public List<CompletableFuture<List<MailserverService>>> getMailserverServices( EmailAddress emailAddress ) {
 
     var urls = getLookupUrls( emailAddress.getDomainPart().toIdn(), emailAddress.toIdn() );
     var placeholders = getPlaceholders( emailAddress );
@@ -128,7 +104,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
 
   @Override
-  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress.DomainPart domainPart ) {
+  public List<CompletableFuture<List<MailserverService>>> getMailserverServices( EmailAddress.DomainPart domainPart ) {
 
     var urls = getLookupUrls( domainPart.toIdn(), null );
     var placeholders = getPlaceholders( domainPart );

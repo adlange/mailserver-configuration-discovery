@@ -32,34 +32,14 @@ public class SrvRecordMailserverConfigurationDiscoveryStrategy implements Mailse
 
 
   @Override
-  public List<MailserverService> getMailserverServices( EmailAddress emailAddress ) {
+  public List<CompletableFuture<List<MailserverService>>> getMailserverServices( EmailAddress emailAddress ) {
 
     return getMailserverServices( emailAddress.getDomainPart() );
   }
 
 
   @Override
-  public List<MailserverService> getMailserverServices( EmailAddress.DomainPart domainPart ) {
-
-    //@formatter:off
-    return Arrays.stream( SrvProtocol.values() )
-        .filter( p -> context.getDiscoveryScopes().contains( p.discoveryScope ) )
-        .map( p -> getMailserverServicesForProtocol( domainPart.toIdn(), p ) )
-        .flatMap( List::stream )
-        .toList();
-    //@formatter:on
-  }
-
-
-  @Override
-  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress emailAddress ) {
-
-    return getMailserverServicesAsync( emailAddress.getDomainPart() );
-  }
-
-
-  @Override
-  public List<CompletableFuture<List<MailserverService>>> getMailserverServicesAsync( EmailAddress.DomainPart domainPart ) {
+  public List<CompletableFuture<List<MailserverService>>> getMailserverServices( EmailAddress.DomainPart domainPart ) {
 
     //@formatter:off
     return Arrays.stream( SrvProtocol.values() )

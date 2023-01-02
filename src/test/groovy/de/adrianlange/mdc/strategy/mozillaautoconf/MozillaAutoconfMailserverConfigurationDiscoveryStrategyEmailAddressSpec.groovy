@@ -42,7 +42,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
@@ -67,7 +67,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
@@ -104,7 +104,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
@@ -141,7 +141,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
@@ -179,7 +179,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
@@ -222,7 +222,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
@@ -273,7 +273,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
             strategy.xmlDocumentUrlReader = xmlDocumentUrlReader
 
         when:
-            def configs = TestHelper.getResultList( strategy.getMailserverServicesAsync( EmailAddress.of( EMAIL_ADDRESS ) ) )
+            def configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) )
 
         then:
             0 * xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) )
