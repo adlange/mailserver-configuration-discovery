@@ -114,7 +114,8 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
 
   private List<CompletableFuture<List<MailserverService>>> getCompletableFutures( EmailAddress.DomainPart domainPart,
-                                                                                  Collection<String> urls, Map<String, String> placeholders ) {
+                                                                                  Collection<String> urls, Map<String
+      , String> placeholders ) {
 
     List<CompletableFuture<List<MailserverService>>> completableFutures = new ArrayList<>();
     // @formatter:off
@@ -136,7 +137,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
       return txtDnsResolver.getTxtRecords( domain ).stream()
           .map( TXTRecord::getStrings )
           .map( t -> String.join( "", t ) )
-          .filter( u -> u.startsWith( "mailconf=" ) )
+          .filter( u -> u.startsWith( "mailconf=https://" ) )
           .map( u -> u.replaceFirst( "^mailconf=", "" ) )
           .map( u -> getMailserverServicesFromUrl( u, placeholders ) )
           .flatMap( List::stream )

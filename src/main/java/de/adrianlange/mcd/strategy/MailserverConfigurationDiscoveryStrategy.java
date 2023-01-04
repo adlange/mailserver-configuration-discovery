@@ -7,6 +7,8 @@ import java.util.concurrent.CompletableFuture;
 
 
 /**
+ * A discovery strategy for mailserver service configurations.
+ *
  * @author Adrian Lange
  */
 public interface MailserverConfigurationDiscoveryStrategy {
