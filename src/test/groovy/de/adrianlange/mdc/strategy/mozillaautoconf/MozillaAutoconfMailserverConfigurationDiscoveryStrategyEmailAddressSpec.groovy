@@ -22,7 +22,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyEmailAddressSpec ex
     private static final String AUTOCONF_URL_1A = "http://autoconfig.%s/mail/config-v1.1.xml"
     private static final String AUTOCONF_URL_1B = "http://autoconfig.%s/mail/config-v1.1.xml?emailaddress=%s"
     private static final String AUTOCONF_URL_2 = "http://%s/.well-known/autoconfig/mail/config-v1.1.xml"
-    private static final String AUTOCONF_URL_3 = "http://dummy-domain.invalid/autoconfig.xml"
+    private static final String AUTOCONF_URL_3 = "https://dummy-domain.invalid/autoconfig.xml"
 
     private static final String MOCK_MOZILLA_EXAMPLE = "/autoconf/mozilla-example.xml"
     private static final String MOCK_SIMPLE = "/autoconf/simple.xml"

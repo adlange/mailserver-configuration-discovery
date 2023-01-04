@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URL;
@@ -23,8 +24,12 @@ public class XmlDocumentUrlReaderImpl implements XmlDocumentUrlReader {
   @Override
   public Optional<Document> getDocument( String url ) {
 
+    if( !url.startsWith( "http" ) )
+      return Optional.empty();
+
     try {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
       DocumentBuilder db = dbf.newDocumentBuilder();
       return Optional.ofNullable( db.parse( new URL( url ).openStream() ) );
     } catch( UnknownHostException uhe ) {
