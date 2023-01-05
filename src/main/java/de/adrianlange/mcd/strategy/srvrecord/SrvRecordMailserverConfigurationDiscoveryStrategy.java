@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 
 public class SrvRecordMailserverConfigurationDiscoveryStrategy implements MailserverConfigurationDiscoveryStrategy {
@@ -45,7 +46,7 @@ public class SrvRecordMailserverConfigurationDiscoveryStrategy implements Mailse
     return Arrays.stream( SrvProtocol.values() )
         .filter( p -> context.getDiscoveryScopes().contains( p.discoveryScope ) )
         .map( p -> CompletableFuture.supplyAsync( () -> getMailserverServicesForProtocol( domainPart.toIdn(), p ), context.getExecutor() ) )
-        .toList();
+        .collect( Collectors.toList() );
     //@formatter:on
   }
 

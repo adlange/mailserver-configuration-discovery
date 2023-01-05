@@ -141,7 +141,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
           .map( u -> u.replaceFirst( "^mailconf=", "" ) )
           .map( u -> getMailserverServicesFromUrl( u, placeholders ) )
           .flatMap( List::stream )
-          .toList();
+          .collect( Collectors.toList() );
       // @formatter:on
 
     }, context.getExecutor() );
@@ -154,7 +154,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
     return getDocumentFromUrl( url ).map(
         document -> getMailserverServicesFromDocument( document, placeholders ).stream()
             .filter( s -> context.getDiscoveryScopes().contains( DiscoveryScope.get( s.getProtocol() ) ) )
-            .toList() )
+            .collect( Collectors.toList() ) )
         .orElse( Collections.emptyList() );
     // @formatter:on
   }
@@ -182,7 +182,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
         .filter( e -> e.getNodeName().equalsIgnoreCase( EL_1_EMAIL_PROVIDER ) )
         .map( e -> getMailserverServicesFromEmailProvider( e, placeholders, oAuth2s ) )
         .flatMap( List::stream )
-        .toList();
+        .collect( Collectors.toList() );
     // @formatter:on
   }
 
@@ -196,7 +196,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
         .map( e -> getMailserverServiceFromElement( e, placeholders, oAuth2s ) )
         .filter( Optional::isPresent )
         .map( Optional::get )
-        .toList();
+        .collect( Collectors.toList() );
     // @formatter:on
   }
 

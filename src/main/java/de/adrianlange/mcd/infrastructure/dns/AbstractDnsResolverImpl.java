@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 
 public abstract class AbstractDnsResolverImpl {
@@ -54,7 +55,7 @@ public abstract class AbstractDnsResolverImpl {
       if( lookupResult == null )
         return Collections.emptyList();
 
-      return Arrays.stream( lookupResult ).filter( r -> r.getType() == type ).toList();
+      return Arrays.stream( lookupResult ).filter( r -> r.getType() == type ).collect( Collectors.toList() );
     } catch( TextParseException e ) {
       LOG.error( "Could not lookup domain {}", lookupDomain, e );
     }

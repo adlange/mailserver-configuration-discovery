@@ -5,6 +5,7 @@ import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.Type;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 
 public class SrvDnsResolverImpl extends AbstractDnsResolverImpl implements SrvDnsResolver {
@@ -18,6 +19,6 @@ public class SrvDnsResolverImpl extends AbstractDnsResolverImpl implements SrvDn
   public Collection<SRVRecord> getSrvRecords( String domain, String protocolPrefix ) {
 
     var lookupDomain = protocolPrefix + "._tcp." + domain;
-    return getRecords( lookupDomain, Type.SRV ).stream().map( SRVRecord.class::cast ).toList();
+    return getRecords( lookupDomain, Type.SRV ).stream().map( SRVRecord.class::cast ).collect( Collectors.toList() );
   }
 }
