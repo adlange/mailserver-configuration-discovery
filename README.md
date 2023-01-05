@@ -96,6 +96,10 @@ for( MailserverService service : services ) {
 
 ## Changelog
 
+### 0.0.3
+
+* fix XXE_DOCUMENT and URLCONNECTION_SSRF_FD bugs when looking up XML autoconf files
+
 ### 0.0.2
 
 * add support for Mozilla Autoconf
