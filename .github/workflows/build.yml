@@ -49,7 +49,7 @@ jobs:
             
             Or using Gradle:
             
-            ````groovy
+            ```groovy
             implementation( 'de.adrianlange:mailserver-configuration-discovery:${{ steps.version.outputs.version }}' )
             ```
         env:
