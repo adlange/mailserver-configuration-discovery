@@ -5,6 +5,7 @@ import org.xbill.DNS.TXTRecord;
 import org.xbill.DNS.Type;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 
 public class TxtDnsResolverImpl extends AbstractDnsResolverImpl implements TxtDnsResolver {
@@ -18,6 +19,6 @@ public class TxtDnsResolverImpl extends AbstractDnsResolverImpl implements TxtDn
   @Override
   public Collection<TXTRecord> getTxtRecords( String domain ) {
 
-    return getRecords( domain, Type.SRV ).stream().map( TXTRecord.class::cast ).toList();
+    return getRecords( domain, Type.SRV ).stream().map( TXTRecord.class::cast ).collect( Collectors.toList() );
   }
 }

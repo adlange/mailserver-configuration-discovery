@@ -50,10 +50,14 @@ public interface MailserverConfigurationDiscoveryContext {
 
 
     public static DiscoveryScope get( Protocol protocol ) {
-      return switch( protocol ) {
-        case SMTP -> SUBMISSION;
-        case IMAP, POP3 -> RECEPTION;
-      };
+      switch( protocol ) {
+        case SMTP:
+          return SUBMISSION;
+        case IMAP:
+        case POP3:
+          return RECEPTION;
+      }
+      throw new IllegalArgumentException( "Given protocol " + protocol + " is not valid!" );
     }
   }
 }
