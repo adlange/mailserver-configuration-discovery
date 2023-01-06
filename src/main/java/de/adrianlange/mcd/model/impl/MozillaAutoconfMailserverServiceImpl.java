@@ -8,6 +8,7 @@ import de.adrianlange.mcd.model.OAuth2;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -85,5 +86,24 @@ public class MozillaAutoconfMailserverServiceImpl extends AbstractMailserverServ
     if( !oAuth2s.isEmpty() )
       sb.append( ", oAuth2s=" ).append( oAuth2s );
     return sb.toString();
+  }
+
+
+  @Override
+  public boolean equals( Object o ) {
+    if( this == o )
+      return true;
+    if( o == null || getClass() != o.getClass() )
+      return false;
+    if( !super.equals( o ) )
+      return false;
+    MozillaAutoconfMailserverServiceImpl that = (MozillaAutoconfMailserverServiceImpl) o;
+    return Objects.equals( username, that.username ) && Objects.equals( password, that.password ) && Objects.equals( authentications, that.authentications ) && Objects.equals( oAuth2s, that.oAuth2s );
+  }
+
+
+  @Override
+  public int hashCode() {
+    return Objects.hash( super.hashCode(), username, password, authentications, oAuth2s );
   }
 }

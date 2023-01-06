@@ -96,6 +96,10 @@ for( MailserverService service : services ) {
 
 ## Changelog
 
+### 0.1.0
+
+* `MailserverConfigurationDiscovery` returns sets instead of lists now, s.th. result set won't contain duplicates
+
 ### 0.0.3
 
 * fix XXE_DOCUMENT and URLCONNECTION_SSRF_FD bugs when looking up XML autoconf files
