@@ -2,6 +2,8 @@ package de.adrianlange.mcd.model.impl;
 
 import de.adrianlange.mcd.model.OAuth2;
 
+import java.util.Objects;
+
 
 public class OAuth2Impl implements OAuth2 {
 
@@ -76,5 +78,22 @@ public class OAuth2Impl implements OAuth2 {
 
     return "issuer='" + issuer + "', scope='" + scope + "', authUrl='" + authUrl + "', " + "tokenUrl='" + tokenUrl +
         "'";
+  }
+
+
+  @Override
+  public boolean equals( Object o ) {
+    if( this == o )
+      return true;
+    if( o == null || getClass() != o.getClass() )
+      return false;
+    OAuth2Impl oAuth2 = (OAuth2Impl) o;
+    return Objects.equals( issuer, oAuth2.issuer ) && Objects.equals( scope, oAuth2.scope ) && Objects.equals( authUrl, oAuth2.authUrl ) && Objects.equals( tokenUrl, oAuth2.tokenUrl );
+  }
+
+
+  @Override
+  public int hashCode() {
+    return Objects.hash( issuer, scope, authUrl, tokenUrl );
   }
 }

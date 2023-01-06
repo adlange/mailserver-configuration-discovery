@@ -5,6 +5,8 @@ import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
 
+import java.util.Objects;
+
 
 public abstract class AbstractMailserverService implements MailserverService {
 
@@ -109,5 +111,22 @@ public abstract class AbstractMailserverService implements MailserverService {
     if( socketType != null )
       sb.append( ", socketType=" ).append( socketType );
     return sb.toString();
+  }
+
+
+  @Override
+  public boolean equals( Object o ) {
+    if( this == o )
+      return true;
+    if( o == null || getClass() != o.getClass() )
+      return false;
+    AbstractMailserverService that = (AbstractMailserverService) o;
+    return protocol == that.protocol && socketType == that.socketType && Objects.equals( host, that.host ) && Objects.equals( port, that.port ) && configurationMethod == that.configurationMethod;
+  }
+
+
+  @Override
+  public int hashCode() {
+    return Objects.hash( protocol, socketType, host, port, configurationMethod );
   }
 }
