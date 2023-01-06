@@ -165,7 +165,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             isMozillaDefaultPop3( pop3 )
     }
 
-    def "test multiple config documents won't be merged"() {
+    def "test multiple equal config documents will be merged"() {
 
         given:
             def context = new MailserverConfigurationDiscoveryContextBuilder()
@@ -188,7 +188,7 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             1 * txtDnsResolver.getTxtRecords( DOMAIN ) >> [ DnsHelper.createTXTRecord( DOMAIN, AUTOCONF_URL_3 ) ]
             0 * _
         and:
-            configs.size() == 4
+            configs.size() == 2
 
         when:
             def smtp = configs.findAll {
@@ -199,13 +199,11 @@ class MozillaAutoconfMailserverConfigurationDiscoveryStrategyDomainSpec extends 
             } as MozillaAutoconfMailserverService[]
 
         then:
-            smtp.size() == 2
-            pop3.size() == 2
+            smtp.size() == 1
+            pop3.size() == 1
         and:
             isMozillaDefaultSmtp( smtp[0] )
-            isMozillaDefaultSmtp( smtp[1] )
             isMozillaDefaultPop3( pop3[0] )
-            isMozillaDefaultPop3( pop3[1] )
     }
 
     def "test multiple different config documents are found"() {

@@ -34,7 +34,7 @@ public class MailserverConfigurationDiscovery {
    * @param context      Context for the discovery of mailserver configurations
    * @return A list of mailserver configurations, may be empty if none was found
    */
-  public static List<MailserverService> discover( EmailAddress emailAddress,
+  public static Set<MailserverService> discover( EmailAddress emailAddress,
                                                   MailserverConfigurationDiscoveryContext context ) {
 
     if( emailAddress == null )
@@ -55,7 +55,7 @@ public class MailserverConfigurationDiscovery {
    * @param context Context for the discovery of mailserver configurations
    * @return A list of mailserver configurations, may be empty if none was found
    */
-  public static List<MailserverService> discover( String domain, MailserverConfigurationDiscoveryContext context ) {
+  public static Set<MailserverService> discover( String domain, MailserverConfigurationDiscoveryContext context ) {
 
     if( domain == null )
       throw new IllegalArgumentException( "Domain must not be null!" );
@@ -75,7 +75,7 @@ public class MailserverConfigurationDiscovery {
    * @param emailAddress Email address to lookup mailserver configurations for
    * @return A list of mailserver configurations, may be empty if none was found
    */
-  public static List<MailserverService> discover( EmailAddress emailAddress ) {
+  public static Set<MailserverService> discover( EmailAddress emailAddress ) {
 
     var context = new MailserverConfigurationDiscoveryContextBuilder().build();
     return discover( emailAddress, context );
@@ -89,7 +89,7 @@ public class MailserverConfigurationDiscovery {
    * @param domain Domain to lookup mailserver configurations for
    * @return A list of mailserver configurations, may be empty if none was found
    */
-  public static List<MailserverService> discover( String domain ) {
+  public static Set<MailserverService> discover( String domain ) {
 
     var context = new MailserverConfigurationDiscoveryContextBuilder().build();
     return discover( domain, context );
@@ -118,14 +118,14 @@ public class MailserverConfigurationDiscovery {
    * @param <T>    An implementation of {@link MailserverService}
    * @return A list of {@link MailserverService}
    */
-  private static <T extends MailserverService> List<T> waitForAllAndMerge( Stream<List<CompletableFuture<List<T>>>> stream ) {
+  private static <T extends MailserverService> Set<T> waitForAllAndMerge( Stream<List<CompletableFuture<List<T>>>> stream ) {
 
     //@formatter:off
     return stream
         .flatMap( List::stream )
         .map( CompletableFuture::join )
         .flatMap( List::stream )
-        .collect( Collectors.toList() );
+        .collect( Collectors.toSet() );
     //@formatter:on
   }
 }
