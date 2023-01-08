@@ -10,6 +10,7 @@ A Java library for looking up published mailserver configurations for clients fo
 Possibly supported soon:
 
 * Microsoft Office Autodiscover v1 (only for http(s) URIs)
+* Apple Mail Profile Autoconfig
 
 Microsoft Office Autodiscover v2 is not expected to be supported in the future.
 
