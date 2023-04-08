@@ -49,17 +49,6 @@
         <url>https://github.com/adlange/mailserver-configuration-discovery/issues</url>
     </issueManagement>
 
-    <repositories>
-        <!-- Only required if a snapshot version of Spock is used -->
-        <repository>
-            <id>spock-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>commons-validator</groupId>
