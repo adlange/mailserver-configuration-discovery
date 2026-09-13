@@ -66,11 +66,11 @@ var context = new MailserverConfigurationDiscoveryContextBuilder()
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
 
-The discovery is run as concurrent task. If you want to use a custom Executor, you can overwrite the default one:
+All lookups run concurrently on an `Executor`. By default a virtual-thread-per-task executor is used, which suits the blocking DNS and HTTP I/O and needs no shutdown. If you want to use a custom Executor, for example to limit concurrency, you can overwrite the default one:
 
 ```java
 var context = new MailserverConfigurationDiscoveryContextBuilder()
-    .withExecutor( new ForkJoinPool( 1 ) )
+    .withExecutor( Executors.newFixedThreadPool( 2 ) )
     .build();
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```

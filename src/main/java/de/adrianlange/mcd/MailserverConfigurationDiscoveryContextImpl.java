@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executors;
 
 
 public class MailserverConfigurationDiscoveryContextImpl implements MailserverConfigurationDiscoveryContext {
@@ -30,7 +30,8 @@ public class MailserverConfigurationDiscoveryContextImpl implements MailserverCo
     this.dnsLookupContext = new DnsLookupContextImpl();
     this.discoveryScopes = EnumSet.allOf( DiscoveryScope.class );
     this.configurationMethods = EnumSet.allOf( ConfigurationMethod.class );
-    this.executor = new ForkJoinPool();
+    // discovery is blocking DNS and HTTP I/O, virtual threads fit that best and need no pool sizing or shutdown
+    this.executor = Executors.newVirtualThreadPerTaskExecutor();
     this.insecureHttpAllowed = false;
     this.httpTimeout = Duration.ofSeconds( 10 );
   }

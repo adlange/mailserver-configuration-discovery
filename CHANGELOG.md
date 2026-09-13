@@ -10,6 +10,9 @@
 * SRV strategy: added `_submissions._tcp` (RFC 8314 section 5.1), reported as SMTP with socket type SSL
 * Mozilla Autoconfig parser: servers with an invalid `<port>` are skipped, unknown `<authentication>` and `<socketType>` values are ignored instead of adding `null` to the result
 * a failing discovery strategy no longer fails the whole discovery: the failure is logged on WARN level and the results of the other strategies are returned
+* the default executor is a virtual-thread-per-task executor instead of a new `ForkJoinPool` per context; it suits the blocking DNS/HTTP I/O and needs no shutdown
+* `DnsLookupContext.getDnsServers()` returns an empty collection instead of `null` if no server is configured; invalid DNS configuration fails with `IllegalArgumentException` instead of `AssertionError`/`RuntimeException`, and unparsable DNS names are logged on DEBUG instead of ERROR
+* build: `maven.compiler.release` instead of source/target (fixes the javac system-modules warning), pinned compiler plugin, Mockito loaded as a Java agent (removes the self-attach warning)
 * Mozilla Autoconfig documents are fetched over HTTPS only by default; plain HTTP can be enabled via `MailserverConfigurationDiscoveryContextBuilder.withInsecureHttpAllowed( true )`. Previously only HTTP URLs were queried, which silently failed for providers redirecting to HTTPS.
 * HTTP redirects are followed now (including HTTP to HTTPS), HTTP requests have a configurable timeout (`withHttpTimeout`, default 10 seconds), and non-200 responses are ignored instead of being parsed
 * the `emailaddress` query parameter of the Autoconf URL is URL-encoded now

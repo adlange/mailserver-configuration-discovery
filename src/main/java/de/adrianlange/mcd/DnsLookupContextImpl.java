@@ -35,7 +35,7 @@ public class DnsLookupContextImpl implements DnsLookupContext {
   @Override
   public Collection<String> getDnsServers() {
 
-    return dnsServers.isEmpty() ? null : Collections.unmodifiableCollection( dnsServers );
+    return Collections.unmodifiableCollection( dnsServers );
   }
 
 

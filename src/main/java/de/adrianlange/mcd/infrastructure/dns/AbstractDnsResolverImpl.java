@@ -43,19 +43,18 @@ public abstract class AbstractDnsResolverImpl {
   private static Resolver createResolver( DnsLookupContext dnsLookupContext ) {
 
     if( dnsLookupContext == null )
-      throw new AssertionError( "Context must not be null!" );
+      throw new IllegalArgumentException( "DNS lookup context must not be null!" );
 
     ExtendedResolver extendedResolver;
-    if( dnsLookupContext.getDnsServers() == null )
+    var dnsServers = dnsLookupContext.getDnsServers();
+    if( dnsServers == null || dnsServers.isEmpty() )
       extendedResolver = new ExtendedResolver();
     else {
-      var servers = dnsLookupContext.getDnsServers().toArray( new String[0] );
       try {
-        extendedResolver = new ExtendedResolver( servers );
+        extendedResolver = new ExtendedResolver( dnsServers.toArray( new String[0] ) );
       } catch( UnknownHostException uhe ) {
-        LOG.error( "Given DNS servers may not exist: {}", dnsLookupContext.getDnsServers(), uhe );
-        // is handled when defining the context
-        throw new RuntimeException( uhe );
+        // the builder validates every server via InetAddress.getByName, so this is a programming error
+        throw new IllegalArgumentException( "Configured DNS servers cannot be resolved: " + dnsServers, uhe );
       }
     }
     extendedResolver.setTimeout( dnsLookupContext.getTimeout() );
@@ -77,7 +76,8 @@ public abstract class AbstractDnsResolverImpl {
 
       return Arrays.stream( lookupResult ).filter( r -> r.getType() == type ).collect( Collectors.toList() );
     } catch( TextParseException e ) {
-      LOG.error( "Could not lookup domain {}", lookupDomain, e );
+      // an unparsable name cannot have records, this is an expected outcome of discovery and not an error
+      LOG.debug( "Skipping DNS lookup, {} is not a valid DNS name: {}", lookupDomain, e.getMessage() );
     }
     return Collections.emptyList();
   }
