@@ -23,11 +23,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xbill.DNS.TXTRecord;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,15 +83,16 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
   private final MailserverConfigurationDiscoveryContext context;
 
-  private XmlDocumentUrlReader xmlDocumentUrlReader = new XmlDocumentUrlReaderImpl();
+  private final XmlDocumentUrlReader xmlDocumentUrlReader;
 
-  private TxtDnsResolver txtDnsResolver;
+  private final TxtDnsResolver txtDnsResolver;
 
 
   public MozillaAutoconfMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context ) {
 
     this.context = context;
     txtDnsResolver = new TxtDnsResolverImpl( context.getDnsLookupContext() );
+    xmlDocumentUrlReader = new XmlDocumentUrlReaderImpl( context.getHttpTimeout(), context.getExecutor() );
   }
 
 
@@ -115,7 +118,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
   private List<CompletableFuture<List<MailserverService>>> getCompletableFutures( EmailAddress.DomainPart domainPart,
                                                                                   Collection<String> urls, Map<String
-      , String> placeholders ) {
+          , String> placeholders ) {
 
     List<CompletableFuture<List<MailserverService>>> completableFutures = new ArrayList<>();
     // @formatter:off
@@ -141,7 +144,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
           .map( u -> u.replaceFirst( "^mailconf=", "" ) )
           .map( u -> getMailserverServicesFromUrl( u, placeholders ) )
           .flatMap( List::stream )
-          .collect( Collectors.toList() );
+          .toList();
       // @formatter:on
 
     }, context.getExecutor() );
@@ -154,7 +157,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
     return getDocumentFromUrl( url ).map(
         document -> getMailserverServicesFromDocument( document, placeholders ).stream()
             .filter( s -> context.getDiscoveryScopes().contains( DiscoveryScope.get( s.getProtocol() ) ) )
-            .collect( Collectors.toList() ) )
+            .toList() )
         .orElse( Collections.emptyList() );
     // @formatter:on
   }
@@ -182,7 +185,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
         .filter( e -> e.getNodeName().equalsIgnoreCase( EL_1_EMAIL_PROVIDER ) )
         .map( e -> getMailserverServicesFromEmailProvider( e, placeholders, oAuth2s ) )
         .flatMap( List::stream )
-        .collect( Collectors.toList() );
+        .toList();
     // @formatter:on
   }
 
@@ -196,7 +199,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
         .map( e -> getMailserverServiceFromElement( e, placeholders, oAuth2s ) )
         .filter( Optional::isPresent )
         .map( Optional::get )
-        .collect( Collectors.toList() );
+        .toList();
     // @formatter:on
   }
 
@@ -322,16 +325,25 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
 
   private Set<String> getLookupUrls( String domain, String emailAddress ) {
 
-    Set<String> urls = new HashSet<>();
+    Set<String> urls = new LinkedHashSet<>();
 
-    if( emailAddress == null ) {
-      urls.add( "http://autoconfig." + domain + "/mail/config-v1.1.xml" );
-    } else {
-      urls.add( "http://autoconfig." + domain + "/mail/config-v1.1.xml?emailaddress=" + emailAddress );
-    }
-    urls.add( "http://" + domain + "/.well-known/autoconfig/mail/config-v1.1.xml" );
+    urls.addAll( getLookupUrls( "https", domain, emailAddress ) );
+    if( context.isInsecureHttpAllowed() )
+      urls.addAll( getLookupUrls( "http", domain, emailAddress ) );
 
     return urls;
+  }
+
+
+  private static List<String> getLookupUrls( String scheme, String domain, String emailAddress ) {
+
+    var autoconfigUrl = scheme + "://autoconfig." + domain + "/mail/config-v1.1.xml";
+    if( emailAddress != null )
+      autoconfigUrl += "?emailaddress=" + URLEncoder.encode( emailAddress, StandardCharsets.UTF_8 );
+
+    var wellKnownUrl = scheme + "://" + domain + "/.well-known/autoconfig/mail/config-v1.1.xml";
+
+    return List.of( autoconfigUrl, wellKnownUrl );
   }
 
 

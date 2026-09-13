@@ -121,6 +121,37 @@ public class MailserverConfigurationDiscoveryContextBuilder {
 
 
   /**
+   * Allows fetching configuration documents (e.g. Mozilla Autoconf XML files) over plain HTTP in addition to HTTPS.
+   * <p>This is disabled by default: a document fetched over unencrypted HTTP can be tampered with on the wire and
+   * redirect users to an attacker-controlled mailserver. Enable it only if you need to support providers that publish
+   * their configuration over HTTP only.
+   *
+   * @param allowInsecureHttp set true to additionally query HTTP URLs, false to use HTTPS only
+   * @return builder
+   */
+  public MailserverConfigurationDiscoveryContextBuilder withInsecureHttpAllowed( boolean allowInsecureHttp ) {
+
+    context.setInsecureHttpAllowed( allowInsecureHttp );
+    return this;
+  }
+
+
+  /**
+   * Sets the timeout for HTTP(S) requests fetching configuration documents (connect and overall request timeout).
+   *
+   * @param timeout Timeout for HTTP requests, must not be null
+   * @return builder
+   */
+  public MailserverConfigurationDiscoveryContextBuilder withHttpTimeout( Duration timeout ) {
+
+    if( timeout == null )
+      throw new IllegalArgumentException( "HTTP timeout must not be null!" );
+    context.setHttpTimeout( timeout );
+    return this;
+  }
+
+
+  /**
    * Builds the context object.
    *
    * @return Context object

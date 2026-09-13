@@ -56,6 +56,16 @@ var context = new MailserverConfigurationDiscoveryContextBuilder()
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
 
+Mozilla Autoconf documents are fetched over HTTPS only by default. A document fetched over plain HTTP could be tampered with on the wire and point clients to an attacker-controlled mailserver. If you need to support providers that publish their configuration over HTTP only, plain HTTP URLs can be queried in addition to HTTPS ones. The HTTP timeout (connect and overall request timeout) can be adjusted as well:
+
+```java
+var context = new MailserverConfigurationDiscoveryContextBuilder()
+    .withInsecureHttpAllowed( true )
+    .withHttpTimeout( Duration.ofSeconds( 5 ) )
+    .build();
+var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
+```
+
 The discovery is run as concurrent task. If you want to use a custom Executor, you can overwrite the default one:
 
 ```java
@@ -97,19 +107,4 @@ for( MailserverService service : services ) {
 
 ## Changelog
 
-### 0.1.0
-
-* `MailserverConfigurationDiscovery` returns sets instead of lists now, s.th. result set won't contain duplicates
-
-### 0.0.3
-
-* fix XXE_DOCUMENT and URLCONNECTION_SSRF_FD bugs when looking up XML autoconf files
-
-### 0.0.2
-
-* add support for Mozilla Autoconf
-* remove synchronous discovery to minimize complexity
-
-### 0.0.1
-
-* initial release with RFC 6186 support
+See [CHANGELOG.md](CHANGELOG.md).

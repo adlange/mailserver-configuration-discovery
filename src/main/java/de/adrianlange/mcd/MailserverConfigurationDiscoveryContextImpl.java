@@ -2,6 +2,7 @@ package de.adrianlange.mcd;
 
 import de.adrianlange.mcd.model.ConfigurationMethod;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -19,6 +20,10 @@ public class MailserverConfigurationDiscoveryContextImpl implements MailserverCo
 
   private Executor executor;
 
+  private boolean insecureHttpAllowed;
+
+  private Duration httpTimeout;
+
 
   protected MailserverConfigurationDiscoveryContextImpl() {
 
@@ -26,6 +31,8 @@ public class MailserverConfigurationDiscoveryContextImpl implements MailserverCo
     this.discoveryScopes = EnumSet.allOf( DiscoveryScope.class );
     this.configurationMethods = EnumSet.allOf( ConfigurationMethod.class );
     this.executor = new ForkJoinPool();
+    this.insecureHttpAllowed = false;
+    this.httpTimeout = Duration.ofSeconds( 10 );
   }
 
 
@@ -68,5 +75,27 @@ public class MailserverConfigurationDiscoveryContextImpl implements MailserverCo
 
   public void setExecutor( Executor executor ) {
     this.executor = executor;
+  }
+
+
+  @Override
+  public boolean isInsecureHttpAllowed() {
+    return insecureHttpAllowed;
+  }
+
+
+  public void setInsecureHttpAllowed( boolean insecureHttpAllowed ) {
+    this.insecureHttpAllowed = insecureHttpAllowed;
+  }
+
+
+  @Override
+  public Duration getHttpTimeout() {
+    return httpTimeout;
+  }
+
+
+  public void setHttpTimeout( Duration httpTimeout ) {
+    this.httpTimeout = httpTimeout;
   }
 }

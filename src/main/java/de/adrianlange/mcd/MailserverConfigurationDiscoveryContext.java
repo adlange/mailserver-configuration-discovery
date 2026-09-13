@@ -3,6 +3,7 @@ package de.adrianlange.mcd;
 import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.Protocol;
 
+import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -43,6 +44,25 @@ public interface MailserverConfigurationDiscoveryContext {
    * @return Executor
    */
   Executor getExecutor();
+
+
+  /**
+   * Returns whether configuration documents may additionally be fetched over plain, unencrypted HTTP. By default only
+   * HTTPS is used, because a configuration document fetched over HTTP could be altered on the wire to point clients to
+   * an attacker-controlled mailserver.
+   *
+   * @return <code>true</code> if HTTP URLs are queried in addition to HTTPS URLs, <code>false</code> otherwise
+   */
+  boolean isInsecureHttpAllowed();
+
+
+  /**
+   * Returns the timeout applied to HTTP(S) requests fetching configuration documents. It is used both as connect
+   * timeout and as overall request timeout.
+   *
+   * @return HTTP timeout
+   */
+  Duration getHttpTimeout();
 
 
   enum DiscoveryScope {
