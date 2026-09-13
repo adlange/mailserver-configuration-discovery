@@ -33,8 +33,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
     </properties>
 
     <scm>
@@ -53,23 +52,36 @@
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
-            <version>1.10.0</version>
+            <version>1.11.0</version>
         </dependency>
         <dependency>
             <groupId>dnsjava</groupId>
             <artifactId>dnsjava</artifactId>
-            <version>3.6.3</version>
+            <version>3.6.5</version>
         </dependency>
         <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-core</artifactId>
-            <version>2.3-groovy-4.0</version>
-            <scope>test</scope>
+            <!-- used directly for logging, previously only available transitively via dnsjava -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.9.3</version>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.14.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.23.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- makes the library's debug output visible in tests, see src/test/resources/simplelogger.properties -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.36</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -77,14 +89,20 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>4.2.1</version>
+                <!-- pinned so that maven.compiler.release works regardless of the Maven default bindings -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+            </plugin>
+            <plugin>
+                <!-- exposes ${org.mockito:mockito-core:jar} for the surefire argLine below -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>compile</goal>
-                            <goal>compileTests</goal>
+                            <goal>properties</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -93,21 +111,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.3</version>
                 <configuration>
-                    <useModulePath>false</useModulePath> <!-- https://issues.apache.org/jira/browse/SUREFIRE-1809 -->
                     <useFile>false</useFile>
-                    <includes>
-                        <include>**/*Test</include>
-                        <include>**/*Spec</include>
-                    </includes>
-                    <statelessTestsetReporter
-                            implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
-                        <disable>false</disable>
-                        <version>3.0</version>
-                        <usePhrasedFileName>false</usePhrasedFileName>
-                        <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
-                        <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
-                        <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
-                    </statelessTestsetReporter>
+                    <!-- load Mockito as a Java agent instead of letting it self-attach, which newer JDKs warn about -->
+                    <argLine>-javaagent:${org.mockito:mockito-core:jar} -XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
             </plugin>
         </plugins>

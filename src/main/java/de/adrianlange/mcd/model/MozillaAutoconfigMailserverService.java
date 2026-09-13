@@ -4,20 +4,22 @@ import java.util.Set;
 
 
 /**
- * Representation of a mailserver configuration according to Mozilla Autoconf standard. Here the mail server
+ * Representation of a mailserver configuration according to Mozilla Autoconfig standard. Here the mail server
  * configurations are published in XML format on web servers.<p>See <a
- * href="https://wiki.mozilla.org/Thunderbird:Autoconfiguration">here</a> for more information.<p> In almost all input
- * fields the following placeholders can occur and must be replaced by the user:
+ * href="https://wiki.mozilla.org/Thunderbird:Autoconfiguration">here</a> for more information.<p> If the lookup was done for a
+ * full email address, the library replaces the following placeholders itself. If only a domain was given, only
+ * <code>%EMAILDOMAIN%</code> is replaced; the other placeholders remain in the values and must be replaced by the
+ * caller:
  * <ul><li>%EMAILADDRESS% (full email address of the user)</li><li>%EMAILLOCALPART% (local part of the email address)
  * </li><li>%EMAILDOMAIN%</li></ul>
  *
  * @author Adrian Lange
  */
-public interface MozillaAutoconfMailserverService extends MailserverService {
+public interface MozillaAutoconfigMailserverService extends MailserverService {
 
   /**
    * Returns the username to use or null if not specified.<p>May contain placeholders, see
-   * {@link MozillaAutoconfMailserverService} for more information.
+   * {@link MozillaAutoconfigMailserverService} for more information.
    *
    * @return Username, placeholder for username or null
    */
@@ -26,7 +28,7 @@ public interface MozillaAutoconfMailserverService extends MailserverService {
 
   /**
    * Returns the password of the user or null if none is specified.<p>May contain placeholders, see
-   * {@link MozillaAutoconfMailserverService} for more information.
+   * {@link MozillaAutoconfigMailserverService} for more information.
    *
    * @return Password, placeholder for password or null
    */

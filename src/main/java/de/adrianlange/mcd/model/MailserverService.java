@@ -19,9 +19,9 @@ public interface MailserverService {
 
 
   /**
-   * Host URL of the mailserver service.
+   * Hostname of the mailserver service, e.g. <code>imap.example.com</code>.
    *
-   * @return Host URL. May be <code>null</code> if this configuration should not be used / the protocol is not
+   * @return Hostname. May be <code>null</code> if this configuration should not be used / the protocol is not
    * supported!
    */
   String getHost();

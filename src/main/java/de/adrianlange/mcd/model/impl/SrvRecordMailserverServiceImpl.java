@@ -18,7 +18,7 @@ public class SrvRecordMailserverServiceImpl extends AbstractMailserverService im
   public SrvRecordMailserverServiceImpl( Protocol protocol, SocketType socketType, String host, Integer port,
                                          Integer weight ) {
 
-    super( ConfigurationMethod.RFC_61186, protocol, socketType, host, port );
+    super( ConfigurationMethod.RFC_6186, protocol, socketType, host, port );
     this.weight = weight;
   }
 

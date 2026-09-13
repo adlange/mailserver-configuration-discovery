@@ -2,7 +2,11 @@ package de.adrianlange.mcd.model;
 
 /**
  * Representation of a mail server configuration according to RFC 6186, searching for SRV records via DNS for the SMTP,
- * IMAP and POP3 e-mail protocols.
+ * IMAP and POP3 e-mail protocols. The <code>_submissions</code> label from RFC 8314 is supported as well.
+ * <p>The socket type is only known for the implicit-TLS labels <code>_submissions</code>, <code>_imaps</code> and
+ * <code>_pop3s</code> ({@link SocketType#SSL}). For <code>_submission</code>, <code>_imap</code> and
+ * <code>_pop3</code> the SRV record does not tell whether STARTTLS is offered, so {@link #getSocketType()} returns
+ * <code>null</code>.
  *
  * @author Adrian Lange
  */

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
+import org.xbill.DNS.Resolver;
 import org.xbill.DNS.TextParseException;
 
 import java.net.UnknownHostException;
@@ -19,29 +20,47 @@ public abstract class AbstractDnsResolverImpl {
 
   private static final Logger LOG = LoggerFactory.getLogger( AbstractDnsResolverImpl.class );
 
-  protected final ExtendedResolver resolver;
+  protected final Resolver resolver;
 
 
   public AbstractDnsResolverImpl( DnsLookupContext dnsLookupContext ) {
 
-    if( dnsLookupContext == null )
-      throw new AssertionError( "Context must not be null!" );
+    this( createResolver( dnsLookupContext ) );
+  }
 
-    if( dnsLookupContext.getDnsServers() == null )
-      resolver = new ExtendedResolver();
+
+  /**
+   * Constructor for tests, allows injecting the dnsjava resolver.
+   */
+  AbstractDnsResolverImpl( Resolver resolver ) {
+
+    if( resolver == null )
+      throw new IllegalArgumentException( "Resolver must not be null!" );
+    this.resolver = resolver;
+  }
+
+
+  private static Resolver createResolver( DnsLookupContext dnsLookupContext ) {
+
+    if( dnsLookupContext == null )
+      throw new IllegalArgumentException( "DNS lookup context must not be null!" );
+
+    ExtendedResolver extendedResolver;
+    var dnsServers = dnsLookupContext.getDnsServers();
+    if( dnsServers == null || dnsServers.isEmpty() )
+      extendedResolver = new ExtendedResolver();
     else {
-      var servers = dnsLookupContext.getDnsServers().toArray( new String[0] );
       try {
-        resolver = new ExtendedResolver( servers );
+        extendedResolver = new ExtendedResolver( dnsServers.toArray( new String[0] ) );
       } catch( UnknownHostException uhe ) {
-        LOG.error( "Given DNS servers may not exist: {}", dnsLookupContext.getDnsServers(), uhe );
-        // is handled when defining the context
-        throw new RuntimeException( uhe );
+        // the builder validates every server via InetAddress.getByName, so this is a programming error
+        throw new IllegalArgumentException( "Configured DNS servers cannot be resolved: " + dnsServers, uhe );
       }
     }
-    resolver.setTimeout( dnsLookupContext.getTimeout() );
-    resolver.setRetries( dnsLookupContext.getRetries() );
-    resolver.setTCP( dnsLookupContext.isTcp() );
+    extendedResolver.setTimeout( dnsLookupContext.getTimeout() );
+    extendedResolver.setRetries( dnsLookupContext.getRetries() );
+    extendedResolver.setTCP( dnsLookupContext.isTcp() );
+    return extendedResolver;
   }
 
 
@@ -57,7 +76,8 @@ public abstract class AbstractDnsResolverImpl {
 
       return Arrays.stream( lookupResult ).filter( r -> r.getType() == type ).collect( Collectors.toList() );
     } catch( TextParseException e ) {
-      LOG.error( "Could not lookup domain {}", lookupDomain, e );
+      // an unparsable name cannot have records, this is an expected outcome of discovery and not an error
+      LOG.debug( "Skipping DNS lookup, {} is not a valid DNS name: {}", lookupDomain, e.getMessage() );
     }
     return Collections.emptyList();
   }
