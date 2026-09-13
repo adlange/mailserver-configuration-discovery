@@ -2,9 +2,8 @@ package de.adrianlange.mcd;
 
 import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.MailserverService;
-import de.adrianlange.mcd.strategy.EmailAddress;
 import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
-import de.adrianlange.mcd.strategy.mozillaautoconf.MozillaAutoconfMailserverConfigurationDiscoveryStrategy;
+import de.adrianlange.mcd.strategy.mozillaautoconfig.MozillaAutoconfigMailserverConfigurationDiscoveryStrategy;
 import de.adrianlange.mcd.strategy.srvrecord.SrvRecordMailserverConfigurationDiscoveryStrategy;
 
 import java.util.HashSet;
@@ -32,7 +31,7 @@ public class MailserverConfigurationDiscovery {
    *
    * @param emailAddress Email address to lookup mailserver configurations for
    * @param context      Context for the discovery of mailserver configurations
-   * @return A list of mailserver configurations, may be empty if none was found
+   * @return A set of mailserver configurations without duplicates, may be empty if none was found
    */
   public static Set<MailserverService> discover( EmailAddress emailAddress,
                                                   MailserverConfigurationDiscoveryContext context ) {
@@ -53,7 +52,7 @@ public class MailserverConfigurationDiscovery {
    *
    * @param domain  Domain to lookup mailserver configurations for
    * @param context Context for the discovery of mailserver configurations
-   * @return A list of mailserver configurations, may be empty if none was found
+   * @return A set of mailserver configurations without duplicates, may be empty if none was found
    */
   public static Set<MailserverService> discover( String domain, MailserverConfigurationDiscoveryContext context ) {
 
@@ -73,7 +72,7 @@ public class MailserverConfigurationDiscovery {
    * {@link #discover(EmailAddress, MailserverConfigurationDiscoveryContext)} customize the lookup.
    *
    * @param emailAddress Email address to lookup mailserver configurations for
-   * @return A list of mailserver configurations, may be empty if none was found
+   * @return A set of mailserver configurations without duplicates, may be empty if none was found
    */
   public static Set<MailserverService> discover( EmailAddress emailAddress ) {
 
@@ -87,7 +86,7 @@ public class MailserverConfigurationDiscovery {
    * {@link #discover(String, MailserverConfigurationDiscoveryContext)} customize the lookup.
    *
    * @param domain Domain to lookup mailserver configurations for
-   * @return A list of mailserver configurations, may be empty if none was found
+   * @return A set of mailserver configurations without duplicates, may be empty if none was found
    */
   public static Set<MailserverService> discover( String domain ) {
 
@@ -99,10 +98,10 @@ public class MailserverConfigurationDiscovery {
   private static Set<MailserverConfigurationDiscoveryStrategy> getStrategies( MailserverConfigurationDiscoveryContext context ) {
     Set<MailserverConfigurationDiscoveryStrategy> strategies = new HashSet<>();
 
-    if( context.getConfigurationMethods().contains( ConfigurationMethod.MOZILLA_AUTOCONF ) )
-      strategies.add( new MozillaAutoconfMailserverConfigurationDiscoveryStrategy( context ) );
+    if( context.getConfigurationMethods().contains( ConfigurationMethod.MOZILLA_AUTOCONFIG ) )
+      strategies.add( new MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( context ) );
 
-    if( context.getConfigurationMethods().contains( ConfigurationMethod.RFC_61186 ) )
+    if( context.getConfigurationMethods().contains( ConfigurationMethod.RFC_6186 ) )
       strategies.add( new SrvRecordMailserverConfigurationDiscoveryStrategy( context ) );
 
     // TODO add autodiscover method
@@ -112,11 +111,11 @@ public class MailserverConfigurationDiscovery {
 
 
   /**
-   * Waits for all given {@link CompletableFuture} and merges them into a List of {@link MailserverService}.
+   * Waits for all given {@link CompletableFuture} and merges them into a Set of {@link MailserverService}.
    *
    * @param stream Result of a {@link de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy}
    * @param <T>    An implementation of {@link MailserverService}
-   * @return A list of {@link MailserverService}
+   * @return A set of {@link MailserverService}
    */
   private static <T extends MailserverService> Set<T> waitForAllAndMerge( Stream<List<CompletableFuture<List<T>>>> stream ) {
 

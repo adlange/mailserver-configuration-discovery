@@ -2,7 +2,7 @@ package de.adrianlange.mcd.model.impl;
 
 import de.adrianlange.mcd.model.Authentication;
 import de.adrianlange.mcd.model.ConfigurationMethod;
-import de.adrianlange.mcd.model.MozillaAutoconfMailserverService;
+import de.adrianlange.mcd.model.MozillaAutoconfigMailserverService;
 import de.adrianlange.mcd.model.OAuth2;
 
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 
 
-public class MozillaAutoconfMailserverServiceImpl extends AbstractMailserverService implements MozillaAutoconfMailserverService {
+public class MozillaAutoconfigMailserverServiceImpl extends AbstractMailserverService implements MozillaAutoconfigMailserverService {
 
   private String username = null;
 
@@ -23,9 +23,9 @@ public class MozillaAutoconfMailserverServiceImpl extends AbstractMailserverServ
   private final Set<OAuth2> oAuth2s = new HashSet<>();
 
 
-  public MozillaAutoconfMailserverServiceImpl() {
+  public MozillaAutoconfigMailserverServiceImpl() {
 
-    super( ConfigurationMethod.MOZILLA_AUTOCONF, null, null, null, null );
+    super( ConfigurationMethod.MOZILLA_AUTOCONFIG, null, null, null, null );
   }
 
 
@@ -97,7 +97,7 @@ public class MozillaAutoconfMailserverServiceImpl extends AbstractMailserverServ
       return false;
     if( !super.equals( o ) )
       return false;
-    MozillaAutoconfMailserverServiceImpl that = (MozillaAutoconfMailserverServiceImpl) o;
+    MozillaAutoconfigMailserverServiceImpl that = (MozillaAutoconfigMailserverServiceImpl) o;
     return Objects.equals( username, that.username ) && Objects.equals( password, that.password ) && Objects.equals( authentications, that.authentications ) && Objects.equals( oAuth2s, that.oAuth2s );
   }
 

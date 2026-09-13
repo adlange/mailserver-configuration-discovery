@@ -11,7 +11,7 @@ public interface DnsLookupContext {
 
   /**
    * Returns a collection of configured DNS servers. If nothing is set the hosts default DNS server is used. If multiple
-   * DNS server are defined, only one of them will be used.
+   * DNS servers are defined, all of them are used with failover (see dnsjava's <code>ExtendedResolver</code>).
    *
    * @return A collection of DNS servers or <code>null</code> if none is configured.
    */

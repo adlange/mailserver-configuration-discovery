@@ -1,7 +1,7 @@
 package de.adrianlange.mcd.model;
 
 /**
- * Representation of a OAuth2 configuration.<p>May contain placeholders, see {@link MozillaAutoconfMailserverService}
+ * Representation of a OAuth2 configuration.<p>May contain placeholders, see {@link MozillaAutoconfigMailserverService}
  * for more information.
  *
  * @author Adrian Lange
@@ -9,7 +9,7 @@ package de.adrianlange.mcd.model;
 public interface OAuth2 {
 
   /**
-   * Returns the token issuer.<p>May contain placeholders, see {@link MozillaAutoconfMailserverService} for more
+   * Returns the token issuer.<p>May contain placeholders, see {@link MozillaAutoconfigMailserverService} for more
    * information.
    *
    * @return Name of the issuer or null if not set.
@@ -18,7 +18,7 @@ public interface OAuth2 {
 
 
   /**
-   * Returns the token scope.<p>May contain placeholders, see {@link MozillaAutoconfMailserverService} for more
+   * Returns the token scope.<p>May contain placeholders, see {@link MozillaAutoconfigMailserverService} for more
    * information.
    *
    * @return Name of the scope or null if not set.
@@ -27,7 +27,7 @@ public interface OAuth2 {
 
 
   /**
-   * Returns the auth URL.<p>May contain placeholders, see {@link MozillaAutoconfMailserverService} for more
+   * Returns the auth URL.<p>May contain placeholders, see {@link MozillaAutoconfigMailserverService} for more
    * information.
    *
    * @return Auth URL or null if not set.
@@ -36,7 +36,7 @@ public interface OAuth2 {
 
 
   /**
-   * Returns the token URL.<p>May contain placeholders, see {@link MozillaAutoconfMailserverService} for more
+   * Returns the token URL.<p>May contain placeholders, see {@link MozillaAutoconfigMailserverService} for more
    * information.
    *
    * @return Token URL or null if not set.

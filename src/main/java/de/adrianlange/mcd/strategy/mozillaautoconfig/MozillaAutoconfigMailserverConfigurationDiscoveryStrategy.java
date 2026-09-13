@@ -1,4 +1,4 @@
-package de.adrianlange.mcd.strategy.mozillaautoconf;
+package de.adrianlange.mcd.strategy.mozillaautoconfig;
 
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext;
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext.DiscoveryScope;
@@ -11,9 +11,9 @@ import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.model.OAuth2;
 import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
-import de.adrianlange.mcd.model.impl.MozillaAutoconfMailserverServiceImpl;
+import de.adrianlange.mcd.model.impl.MozillaAutoconfigMailserverServiceImpl;
 import de.adrianlange.mcd.model.impl.OAuth2Impl;
-import de.adrianlange.mcd.strategy.EmailAddress;
+import de.adrianlange.mcd.EmailAddress;
 import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +40,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 
-public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements MailserverConfigurationDiscoveryStrategy {
+public class MozillaAutoconfigMailserverConfigurationDiscoveryStrategy implements MailserverConfigurationDiscoveryStrategy {
 
   private static final Logger LOG =
-      LoggerFactory.getLogger( MozillaAutoconfMailserverConfigurationDiscoveryStrategy.class );
+      LoggerFactory.getLogger( MozillaAutoconfigMailserverConfigurationDiscoveryStrategy.class );
 
   private static final String EL_ROOT = "clientConfig";
 
@@ -88,11 +88,23 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   private final TxtDnsResolver txtDnsResolver;
 
 
-  public MozillaAutoconfMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context ) {
+  public MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context ) {
+
+    this( context, new XmlDocumentUrlReaderImpl( context.getHttpTimeout(), context.getExecutor() ),
+        new TxtDnsResolverImpl( context.getDnsLookupContext() ) );
+  }
+
+
+  /**
+   * Constructor for tests, allows injecting the infrastructure components.
+   */
+  MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context,
+                                                          XmlDocumentUrlReader xmlDocumentUrlReader,
+                                                          TxtDnsResolver txtDnsResolver ) {
 
     this.context = context;
-    txtDnsResolver = new TxtDnsResolverImpl( context.getDnsLookupContext() );
-    xmlDocumentUrlReader = new XmlDocumentUrlReaderImpl( context.getHttpTimeout(), context.getExecutor() );
+    this.xmlDocumentUrlReader = xmlDocumentUrlReader;
+    this.txtDnsResolver = txtDnsResolver;
   }
 
 
@@ -156,7 +168,7 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
     // @formatter:off
     return getDocumentFromUrl( url ).map(
         document -> getMailserverServicesFromDocument( document, placeholders ).stream()
-            .filter( s -> context.getDiscoveryScopes().contains( DiscoveryScope.get( s.getProtocol() ) ) )
+            .filter( s -> context.getDiscoveryScopes().contains( DiscoveryScope.of( s.getProtocol() ) ) )
             .toList() )
         .orElse( Collections.emptyList() );
     // @formatter:on
@@ -232,13 +244,13 @@ public class MozillaAutoconfMailserverConfigurationDiscoveryStrategy implements 
   }
 
 
-  private static MozillaAutoconfMailserverServiceImpl createMailserverServiceForProtocol( Element serverElement ) {
+  private static MozillaAutoconfigMailserverServiceImpl createMailserverServiceForProtocol( Element serverElement ) {
 
     var protocol = getProtocolFromElement( serverElement );
     if( protocol == null )
       return null;
 
-    var mailserverService = new MozillaAutoconfMailserverServiceImpl();
+    var mailserverService = new MozillaAutoconfigMailserverServiceImpl();
     mailserverService.setProtocol( protocol );
 
     return mailserverService;

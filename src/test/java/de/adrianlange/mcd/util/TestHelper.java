@@ -1,4 +1,4 @@
-package de.adrianlange.mdc.util;
+package de.adrianlange.mcd.util;
 
 import de.adrianlange.mcd.model.MailserverService;
 import org.w3c.dom.Document;
@@ -8,7 +8,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -51,22 +50,4 @@ public class TestHelper {
     }
   }
 
-
-  /**
-   * Injects a value into a private field, replacing the implementation created in the constructor with a mock.
-   *
-   * @param target    Object to modify
-   * @param fieldName Name of the declared field
-   * @param value     Value to inject
-   */
-  public static void setField( Object target, String fieldName, Object value ) {
-
-    try {
-      Field field = target.getClass().getDeclaredField( fieldName );
-      field.setAccessible( true );
-      field.set( target, value );
-    } catch( ReflectiveOperationException e ) {
-      throw new IllegalStateException( "Could not set field " + fieldName, e );
-    }
-  }
 }

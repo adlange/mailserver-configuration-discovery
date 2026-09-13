@@ -5,7 +5,7 @@ A Java library for looking up published mailserver configurations for clients fo
 ## Supported discovery methods:
 
 * SRV records ([RFC 6186](https://www.rfc-editor.org/rfc/rfc6186))
-* [Mozilla Autoconf](https://wiki.mozilla.org/Thunderbird:Autoconfiguration)
+* [Mozilla Autoconfig](https://wiki.mozilla.org/Thunderbird:Autoconfiguration)
 
 Possibly supported soon:
 
@@ -19,8 +19,8 @@ Microsoft Office Autodiscover v2 is not expected to be supported in the future.
 The easiest way to determine mailserver configurations can be done without configuration based on the domain or the whole email address.
 
 ```java
-List<MailserverService> servicesA = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
-List<MailserverService> servicesB = MailserverConfigurationDiscovery.discover( EmailAddress.of( "user@dummy-domain.com" ) );
+Set<MailserverService> servicesA = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
+Set<MailserverService> servicesB = MailserverConfigurationDiscovery.discover( EmailAddress.of( "user@dummy-domain.com" ) );
 ```
 
 ### Context Configuration
@@ -31,7 +31,7 @@ Use only RFC 6186 configurations:
 
 ```java
 var context = new MailserverConfigurationDiscoveryContextBuilder()
-    .withConfigurationMethods( ConfigurationMethod.RFC_61186 )
+    .withConfigurationMethods( ConfigurationMethod.RFC_6186 )
     .build();
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
@@ -56,7 +56,7 @@ var context = new MailserverConfigurationDiscoveryContextBuilder()
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com", context );
 ```
 
-Mozilla Autoconf documents are fetched over HTTPS only by default. A document fetched over plain HTTP could be tampered with on the wire and point clients to an attacker-controlled mailserver. If you need to support providers that publish their configuration over HTTP only, plain HTTP URLs can be queried in addition to HTTPS ones. The HTTP timeout (connect and overall request timeout) can be adjusted as well:
+Mozilla Autoconfig documents are fetched over HTTPS only by default. A document fetched over plain HTTP could be tampered with on the wire and point clients to an attacker-controlled mailserver. If you need to support providers that publish their configuration over HTTP only, plain HTTP URLs can be queried in addition to HTTPS ones. The HTTP timeout (connect and overall request timeout) can be adjusted as well:
 
 ```java
 var context = new MailserverConfigurationDiscoveryContextBuilder()
@@ -84,7 +84,7 @@ var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
 for( MailserverService service : services ) {
   if( service instanceof SrvRecordMailserverService srvRecordMailserverService ) {
     // ...
-  } else if( service instanceof MozillaAutoconfMailserverService mozillaAutoconfMailserverService ) {
+  } else if( service instanceof MozillaAutoconfigMailserverService mozillaAutoconfigMailserverService ) {
     // ...
   }
 }
@@ -95,11 +95,11 @@ or
 ```java
 var services = MailserverConfigurationDiscovery.discover( "dummy-domain.com" );
 for( MailserverService service : services ) {
-  if( service.getConfigurationMethod() == ConfigurationMethod.RFC_61186 ) {
+  if( service.getConfigurationMethod() == ConfigurationMethod.RFC_6186 ) {
     var srvRecordMailserverService = (SrvRecordMailserverService) service;
     // ...
-  } else if( service.getConfigurationMethod() == ConfigurationMethod.MOZILLA_AUTOCONF ) {
-    var mozillaAutoconfMailserverService = (MozillaAutoconfMailserverService) service;
+  } else if( service.getConfigurationMethod() == ConfigurationMethod.MOZILLA_AUTOCONFIG ) {
+    var mozillaAutoconfigMailserverService = (MozillaAutoconfigMailserverService) service;
     // ...
   }
 }

@@ -1,8 +1,7 @@
-package de.adrianlange.mdc.infrastructure.xml;
+package de.adrianlange.mcd.infrastructure.xml;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import de.adrianlange.mcd.infrastructure.xml.XmlDocumentUrlReaderImpl;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

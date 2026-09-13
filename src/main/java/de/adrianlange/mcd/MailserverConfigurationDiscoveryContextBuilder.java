@@ -113,7 +113,7 @@ public class MailserverConfigurationDiscoveryContextBuilder {
    * @param useTcp set true if TCP should be used for DNS lookups, UDP is used otherwise
    * @return builder
    */
-  public MailserverConfigurationDiscoveryContextBuilder useTcpForDnsLookups( boolean useTcp ) {
+  public MailserverConfigurationDiscoveryContextBuilder withTcpForDnsLookups( boolean useTcp ) {
 
     context.getDnsLookupContext().setTcp( useTcp );
     return this;
@@ -121,7 +121,7 @@ public class MailserverConfigurationDiscoveryContextBuilder {
 
 
   /**
-   * Allows fetching configuration documents (e.g. Mozilla Autoconf XML files) over plain HTTP in addition to HTTPS.
+   * Allows fetching configuration documents (e.g. Mozilla Autoconfig XML files) over plain HTTP in addition to HTTPS.
    * <p>This is disabled by default: a document fetched over unencrypted HTTP can be tampered with on the wire and
    * redirect users to an attacker-controlled mailserver. Enable it only if you need to support providers that publish
    * their configuration over HTTP only.

@@ -69,15 +69,21 @@ public interface MailserverConfigurationDiscoveryContext {
     SUBMISSION, RECEPTION;
 
 
-    public static DiscoveryScope get( Protocol protocol ) {
-      switch( protocol ) {
-        case SMTP:
-          return SUBMISSION;
-        case IMAP:
-        case POP3:
-          return RECEPTION;
-      }
-      throw new IllegalArgumentException( "Given protocol " + protocol + " is not valid!" );
+    /**
+     * Returns the discovery scope a protocol belongs to.
+     *
+     * @param protocol Protocol, must not be null
+     * @return {@link #SUBMISSION} for SMTP, {@link #RECEPTION} for IMAP and POP3
+     */
+    public static DiscoveryScope of( Protocol protocol ) {
+
+      if( protocol == null )
+        throw new IllegalArgumentException( "Protocol must not be null!" );
+
+      return switch( protocol ) {
+        case SMTP -> SUBMISSION;
+        case IMAP, POP3 -> RECEPTION;
+      };
     }
   }
 }

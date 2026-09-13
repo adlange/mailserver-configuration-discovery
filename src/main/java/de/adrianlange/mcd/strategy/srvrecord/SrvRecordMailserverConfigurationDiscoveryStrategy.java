@@ -7,7 +7,7 @@ import de.adrianlange.mcd.model.MailserverService;
 import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
 import de.adrianlange.mcd.model.impl.SrvRecordMailserverServiceImpl;
-import de.adrianlange.mcd.strategy.EmailAddress;
+import de.adrianlange.mcd.EmailAddress;
 import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
 import org.xbill.DNS.SRVRecord;
 
@@ -20,15 +20,25 @@ import java.util.stream.Collectors;
 
 public class SrvRecordMailserverConfigurationDiscoveryStrategy implements MailserverConfigurationDiscoveryStrategy {
 
-  private SrvDnsResolver srvDnsResolver;
+  private final SrvDnsResolver srvDnsResolver;
 
   private final MailserverConfigurationDiscoveryContext context;
 
 
   public SrvRecordMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context ) {
 
-    srvDnsResolver = new SrvDnsResolverImpl( context.getDnsLookupContext() );
+    this( context, new SrvDnsResolverImpl( context.getDnsLookupContext() ) );
+  }
+
+
+  /**
+   * Constructor for tests, allows injecting the DNS resolver.
+   */
+  SrvRecordMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context,
+                                                     SrvDnsResolver srvDnsResolver ) {
+
     this.context = context;
+    this.srvDnsResolver = srvDnsResolver;
   }
 
 

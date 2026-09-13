@@ -1,4 +1,4 @@
-package de.adrianlange.mdc.util;
+package de.adrianlange.mcd.util;
 
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Name;

@@ -1,5 +1,6 @@
 package de.adrianlange.mcd.strategy;
 
+import de.adrianlange.mcd.EmailAddress;
 import de.adrianlange.mcd.model.MailserverService;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public interface MailserverConfigurationDiscoveryStrategy {
    *
    * @param emailAddress Email address object to get mailserver configurations for.
    * @return A list of mailserver services. The list can contain duplicate configurations published using different
-   * methods, like SRV resource records or Mozilla Autoconf.
+   * methods, like SRV resource records or Mozilla Autoconfig.
    */
   List<CompletableFuture<List<MailserverService>>> getMailserverServices( EmailAddress emailAddress );
 
@@ -32,7 +33,7 @@ public interface MailserverConfigurationDiscoveryStrategy {
    *
    * @param domainPart Email address domain part to get mailserver configurations for.
    * @return A list of mailserver services. The list can contain duplicate configurations published using different
-   * methods, like SRV resource records or Mozilla Autoconf.
+   * methods, like SRV resource records or Mozilla Autoconfig.
    */
   List<CompletableFuture<List<MailserverService>>> getMailserverServices( EmailAddress.DomainPart domainPart );
 }

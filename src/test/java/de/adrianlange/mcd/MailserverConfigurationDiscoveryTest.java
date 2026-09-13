@@ -1,15 +1,12 @@
-package de.adrianlange.mdc;
+package de.adrianlange.mcd;
 
-import de.adrianlange.mcd.MailserverConfigurationDiscovery;
-import de.adrianlange.mcd.MailserverConfigurationDiscoveryContextBuilder;
 import de.adrianlange.mcd.model.Authentication;
 import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.MailserverService;
-import de.adrianlange.mcd.model.MozillaAutoconfMailserverService;
+import de.adrianlange.mcd.model.MozillaAutoconfigMailserverService;
 import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
 import de.adrianlange.mcd.model.SrvRecordMailserverService;
-import de.adrianlange.mcd.strategy.EmailAddress;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -27,7 +24,7 @@ class MailserverConfigurationDiscoveryTest {
 
     var domain = "adrianlange.de";
     var context =
-        new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.RFC_61186 ).build();
+        new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.RFC_6186 ).build();
 
     var configs = MailserverConfigurationDiscovery.discover( domain, context );
 
@@ -44,11 +41,11 @@ class MailserverConfigurationDiscoveryTest {
 
 
   @Test
-  void testLookupAllMozillaAutoconfRecords() {
+  void testLookupAllMozillaAutoconfigRecords() {
 
     var domain = "adrianlange.de";
     var context =
-        new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+        new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONFIG )
         // autoconfig.adrianlange.de points to the hosting provider's autoconfig server, which is reachable via
         // plain HTTP only (it redirects to HTTPS on its own domain, its certificate does not cover this subdomain)
         .withInsecureHttpAllowed( true ).build();
@@ -56,16 +53,16 @@ class MailserverConfigurationDiscoveryTest {
     var configs = MailserverConfigurationDiscovery.discover( domain, context );
 
     assertEquals( 6, configs.size() );
-    assertMozillaAutoconfServices( configs, "%EMAILADDRESS%" );
+    assertMozillaAutoconfigServices( configs, "%EMAILADDRESS%" );
   }
 
 
   @Test
-  void testLookupAllMozillaAutoconfRecordsForEmailAddress() {
+  void testLookupAllMozillaAutoconfigRecordsForEmailAddress() {
 
     var email = "dummy@adrianlange.de";
     var context =
-        new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONF )
+        new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONFIG )
         // autoconfig.adrianlange.de points to the hosting provider's autoconfig server, which is reachable via
         // plain HTTP only (it redirects to HTTPS on its own domain, its certificate does not cover this subdomain)
         .withInsecureHttpAllowed( true ).build();
@@ -73,11 +70,11 @@ class MailserverConfigurationDiscoveryTest {
     var configs = MailserverConfigurationDiscovery.discover( EmailAddress.of( email ), context );
 
     assertEquals( 6, configs.size() );
-    assertMozillaAutoconfServices( configs, email );
+    assertMozillaAutoconfigServices( configs, email );
   }
 
 
-  private static void assertMozillaAutoconfServices( Set<MailserverService> configs, String expectedUsername ) {
+  private static void assertMozillaAutoconfigServices( Set<MailserverService> configs, String expectedUsername ) {
 
     var smtps = findAllMozilla( configs, Protocol.SMTP );
     var imaps = findAllMozilla( configs, Protocol.IMAP );
@@ -108,14 +105,14 @@ class MailserverConfigurationDiscoveryTest {
   }
 
 
-  private static List<MozillaAutoconfMailserverService> findAllMozilla( Set<MailserverService> configs,
+  private static List<MozillaAutoconfigMailserverService> findAllMozilla( Set<MailserverService> configs,
                                                                         Protocol protocol ) {
 
-    return configs.stream().filter( c -> c.getProtocol() == protocol ).map( MozillaAutoconfMailserverService.class::cast ).toList();
+    return configs.stream().filter( c -> c.getProtocol() == protocol ).map( MozillaAutoconfigMailserverService.class::cast ).toList();
   }
 
 
-  private static MozillaAutoconfMailserverService findBySocketType( List<MozillaAutoconfMailserverService> services,
+  private static MozillaAutoconfigMailserverService findBySocketType( List<MozillaAutoconfigMailserverService> services,
                                                                     SocketType socketType ) {
 
     return services.stream().filter( s -> s.getSocketType() == socketType ).findFirst().orElseThrow();
@@ -125,7 +122,7 @@ class MailserverConfigurationDiscoveryTest {
   private static void assertSrvConfig( SrvRecordMailserverService service, Protocol protocol, String host, int port,
                                        SocketType socketType, int priority, int weight ) {
 
-    assertEquals( ConfigurationMethod.RFC_61186, service.getConfigurationMethod() );
+    assertEquals( ConfigurationMethod.RFC_6186, service.getConfigurationMethod() );
     assertEquals( protocol, service.getProtocol() );
     assertEquals( host, service.getHost() );
     assertEquals( port, service.getPort() );
@@ -135,10 +132,10 @@ class MailserverConfigurationDiscoveryTest {
   }
 
 
-  private static void assertMozillaConfig( MozillaAutoconfMailserverService service, Protocol protocol, String host,
+  private static void assertMozillaConfig( MozillaAutoconfigMailserverService service, Protocol protocol, String host,
                                            int port, SocketType socketType, String username ) {
 
-    assertEquals( ConfigurationMethod.MOZILLA_AUTOCONF, service.getConfigurationMethod() );
+    assertEquals( ConfigurationMethod.MOZILLA_AUTOCONFIG, service.getConfigurationMethod() );
     assertEquals( protocol, service.getProtocol() );
     assertEquals( host, service.getHost() );
     assertEquals( port, service.getPort() );
