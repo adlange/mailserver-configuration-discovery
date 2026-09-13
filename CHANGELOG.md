@@ -6,6 +6,10 @@
 * **Breaking:** renamed all `MozillaAutoconf*` types to `MozillaAutoconfig*` (package `strategy.mozillaautoconfig`, `MozillaAutoconfigMailserverService`, ...) to match the official name of the mechanism
 * **Breaking:** moved `EmailAddress` (with `EmailAddress.DomainPart`) from `de.adrianlange.mcd.strategy` to `de.adrianlange.mcd`
 * **Breaking:** renamed `MailserverConfigurationDiscoveryContextBuilder.useTcpForDnsLookups` to `withTcpForDnsLookups` and `DiscoveryScope.get( Protocol )` to `DiscoveryScope.of( Protocol )`
+* **Breaking:** removed the DNS TXT `mailconf=` lookup from the Mozilla Autoconfig strategy. It was based on a 2008 proposal (Thunderbird:Autoconfiguration:DNSBasedLookup) that Thunderbird never implemented, and it never worked because it queried SRV instead of TXT records
+* SRV strategy: added `_submissions._tcp` (RFC 8314 section 5.1), reported as SMTP with socket type SSL
+* Mozilla Autoconfig parser: servers with an invalid `<port>` are skipped, unknown `<authentication>` and `<socketType>` values are ignored instead of adding `null` to the result
+* a failing discovery strategy no longer fails the whole discovery: the failure is logged on WARN level and the results of the other strategies are returned
 * Mozilla Autoconfig documents are fetched over HTTPS only by default; plain HTTP can be enabled via `MailserverConfigurationDiscoveryContextBuilder.withInsecureHttpAllowed( true )`. Previously only HTTP URLs were queried, which silently failed for providers redirecting to HTTPS.
 * HTTP redirects are followed now (including HTTP to HTTPS), HTTP requests have a configurable timeout (`withHttpTimeout`, default 10 seconds), and non-200 responses are ignored instead of being parsed
 * the `emailaddress` query parameter of the Autoconf URL is URL-encoded now

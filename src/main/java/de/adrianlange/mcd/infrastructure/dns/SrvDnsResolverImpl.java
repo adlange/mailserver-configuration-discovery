@@ -1,6 +1,7 @@
 package de.adrianlange.mcd.infrastructure.dns;
 
 import de.adrianlange.mcd.DnsLookupContext;
+import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.Type;
 
@@ -13,6 +14,15 @@ public class SrvDnsResolverImpl extends AbstractDnsResolverImpl implements SrvDn
   public SrvDnsResolverImpl( DnsLookupContext dnsLookupContext ) {
 
     super( dnsLookupContext );
+  }
+
+
+  /**
+   * Constructor for tests, allows injecting the dnsjava resolver.
+   */
+  SrvDnsResolverImpl( Resolver resolver ) {
+
+    super( resolver );
   }
 
 

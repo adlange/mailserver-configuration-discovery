@@ -1,7 +1,6 @@
 package de.adrianlange.mcd.strategy.mozillaautoconfig;
 
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContextBuilder;
-import de.adrianlange.mcd.infrastructure.dns.TxtDnsResolver;
 import de.adrianlange.mcd.infrastructure.xml.XmlDocumentUrlReader;
 import de.adrianlange.mcd.model.Authentication;
 import de.adrianlange.mcd.model.ConfigurationMethod;
@@ -10,7 +9,6 @@ import de.adrianlange.mcd.model.MozillaAutoconfigMailserverService;
 import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
 import de.adrianlange.mcd.EmailAddress;
-import de.adrianlange.mcd.util.DnsHelper;
 import de.adrianlange.mcd.util.TestHelper;
 import org.junit.jupiter.api.Test;
 
@@ -43,8 +41,6 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
 
   private static final String AUTOCONF_URL_2 = "https://%s/.well-known/autoconfig/mail/config-v1.1.xml";
 
-  private static final String AUTOCONF_URL_3 = "https://dummy-domain.invalid/autoconfig.xml";
-
   private static final String INSECURE_AUTOCONF_URL_1B = "http://autoconfig.%s/mail/config-v1.1.xml?emailaddress=%s";
 
   private static final String INSECURE_AUTOCONF_URL_2 = "http://%s/.well-known/autoconfig/mail/config-v1.1.xml";
@@ -59,22 +55,18 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   @Test
   void testNoAutoconfDocumentExist() {
 
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
 
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = createStrategy( xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) ) ).thenReturn( Optional.empty() );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.empty() );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of() );
 
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
 
     verify( xmlDocumentUrlReader, never() ).getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) );
-    verify( txtDnsResolver ).getTxtRecords( DOMAIN );
-    verifyNoMoreInteractions( xmlDocumentUrlReader, txtDnsResolver );
+    verifyNoMoreInteractions( xmlDocumentUrlReader );
     assertTrue( configs.isEmpty() );
   }
 
@@ -82,22 +74,18 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   @Test
   void testOneAutoconfDocumentExist1A() {
 
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
 
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = createStrategy( xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) ) );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.empty() );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of() );
 
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
 
     verify( xmlDocumentUrlReader, never() ).getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) );
-    verify( txtDnsResolver ).getTxtRecords( DOMAIN );
-    verifyNoMoreInteractions( xmlDocumentUrlReader, txtDnsResolver );
+    verifyNoMoreInteractions( xmlDocumentUrlReader );
     assertEquals( 2, configs.size() );
 
     assertMozillaDefaultSmtp( findOne( configs, Protocol.SMTP ) );
@@ -108,51 +96,18 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   @Test
   void testOneAutoconfDocumentExist2() {
 
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
 
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = createStrategy( xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) ) ).thenReturn( Optional.empty() );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) ) );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of() );
 
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
 
     verify( xmlDocumentUrlReader, never() ).getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) );
-    verify( txtDnsResolver ).getTxtRecords( DOMAIN );
-    verifyNoMoreInteractions( xmlDocumentUrlReader, txtDnsResolver );
-    assertEquals( 2, configs.size() );
-
-    assertMozillaDefaultSmtp( findOne( configs, Protocol.SMTP ) );
-    assertMozillaDefaultPop3( findOne( configs, Protocol.POP3 ) );
-  }
-
-
-  @Test
-  void testOneAutoconfDocumentExist3() {
-
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
-    var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
-
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
-    when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) ) ).thenReturn( Optional.empty() );
-    when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.empty() );
-    when( xmlDocumentUrlReader.getDocument( AUTOCONF_URL_3 ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) ) );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of( DnsHelper.createTXTRecord( DOMAIN,
-        AUTOCONF_URL_3 ) ) );
-
-    var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
-
-    verify( xmlDocumentUrlReader, never() ).getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) );
-    verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) );
-    verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) );
-    verify( xmlDocumentUrlReader ).getDocument( AUTOCONF_URL_3 );
-    verify( txtDnsResolver ).getTxtRecords( DOMAIN );
-    verifyNoMoreInteractions( xmlDocumentUrlReader, txtDnsResolver );
+    verifyNoMoreInteractions( xmlDocumentUrlReader );
     assertEquals( 2, configs.size() );
 
     assertMozillaDefaultSmtp( findOne( configs, Protocol.SMTP ) );
@@ -163,25 +118,18 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   @Test
   void testMultipleEqualConfigDocumentsWillBeMerged() {
 
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
 
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = createStrategy( xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) ) );
-    when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.empty() );
-    when( xmlDocumentUrlReader.getDocument( AUTOCONF_URL_3 ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) ) );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of( DnsHelper.createTXTRecord( DOMAIN,
-        AUTOCONF_URL_3 ) ) );
+    when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) ) );
 
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
 
     verify( xmlDocumentUrlReader, never() ).getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) );
-    verify( xmlDocumentUrlReader ).getDocument( AUTOCONF_URL_3 );
-    verify( txtDnsResolver ).getTxtRecords( DOMAIN );
-    verifyNoMoreInteractions( xmlDocumentUrlReader, txtDnsResolver );
+    verifyNoMoreInteractions( xmlDocumentUrlReader );
     assertEquals( 2, configs.size() );
 
     var smtps = findAll( configs, Protocol.SMTP );
@@ -196,23 +144,18 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   @Test
   void testMultipleDifferentConfigDocumentsAreFound() {
 
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
 
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = createStrategy( xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_MOZILLA_EXAMPLE ) ) );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_SIMPLE ) ) );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of() );
 
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
 
     verify( xmlDocumentUrlReader, never() ).getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) );
-    verify( xmlDocumentUrlReader, never() ).getDocument( AUTOCONF_URL_3 );
-    verify( txtDnsResolver ).getTxtRecords( DOMAIN );
-    verifyNoMoreInteractions( xmlDocumentUrlReader, txtDnsResolver );
+    verifyNoMoreInteractions( xmlDocumentUrlReader );
     assertEquals( 4, configs.size() );
 
     var smtpGoogle =
@@ -236,23 +179,18 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   @Test
   void testReadingDocumentWithOAuth2Information() {
 
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
 
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = createStrategy( xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) ) ).thenReturn( Optional.empty() );
     when( xmlDocumentUrlReader.getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) ) ).thenReturn( Optional.of( TestHelper.readDocumentFromFile( MOCK_OAUTH2 ) ) );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of() );
 
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
 
     verify( xmlDocumentUrlReader, never() ).getDocument( String.format( AUTOCONF_URL_1A, DOMAIN ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_1B, DOMAIN, EMAIL_ADDRESS_ENCODED ) );
     verify( xmlDocumentUrlReader ).getDocument( String.format( AUTOCONF_URL_2, DOMAIN ) );
-    verify( xmlDocumentUrlReader, never() ).getDocument( AUTOCONF_URL_3 );
-    verify( txtDnsResolver ).getTxtRecords( DOMAIN );
-    verifyNoMoreInteractions( xmlDocumentUrlReader, txtDnsResolver );
+    verifyNoMoreInteractions( xmlDocumentUrlReader );
     assertEquals( 2, configs.size() );
 
     assertOAuth2Smtp( findOne( configs, Protocol.SMTP ) );
@@ -263,13 +201,10 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   @Test
   void testEmailAddressIsUrlEncoded() {
 
-    var txtDnsResolver = mock( TxtDnsResolver.class );
-
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
 
-    var strategy = createStrategy( xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = createStrategy( xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( anyString() ) ).thenReturn( Optional.empty() );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of() );
 
     TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( "alan+news&more@example.com" ) ) );
 
@@ -287,11 +222,9 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
         .withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONFIG )
         .withInsecureHttpAllowed( true )
         .build();
-    var txtDnsResolver = mock( TxtDnsResolver.class );
     var xmlDocumentUrlReader = mock( XmlDocumentUrlReader.class );
-    var strategy = new MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( context, xmlDocumentUrlReader, txtDnsResolver );
+    var strategy = new MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( context, xmlDocumentUrlReader );
     when( xmlDocumentUrlReader.getDocument( anyString() ) ).thenReturn( Optional.empty() );
-    when( txtDnsResolver.getTxtRecords( DOMAIN ) ).thenReturn( List.of() );
 
     TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.of( EMAIL_ADDRESS ) ) );
 
@@ -304,11 +237,11 @@ class MozillaAutoconfigMailserverConfigurationDiscoveryStrategyEmailAddressTest 
   }
 
 
-  private static MozillaAutoconfigMailserverConfigurationDiscoveryStrategy createStrategy( XmlDocumentUrlReader xmlDocumentUrlReader, TxtDnsResolver txtDnsResolver ) {
+  private static MozillaAutoconfigMailserverConfigurationDiscoveryStrategy createStrategy( XmlDocumentUrlReader xmlDocumentUrlReader ) {
 
     var context =
         new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.MOZILLA_AUTOCONFIG ).build();
-    return new MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( context, xmlDocumentUrlReader, txtDnsResolver );
+    return new MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( context, xmlDocumentUrlReader );
   }
 
 

@@ -1,9 +1,8 @@
 package de.adrianlange.mcd.strategy.mozillaautoconfig;
 
+import de.adrianlange.mcd.EmailAddress;
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext;
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext.DiscoveryScope;
-import de.adrianlange.mcd.infrastructure.dns.TxtDnsResolver;
-import de.adrianlange.mcd.infrastructure.dns.TxtDnsResolverImpl;
 import de.adrianlange.mcd.infrastructure.xml.XmlDocumentUrlReader;
 import de.adrianlange.mcd.infrastructure.xml.XmlDocumentUrlReaderImpl;
 import de.adrianlange.mcd.model.Authentication;
@@ -13,7 +12,6 @@ import de.adrianlange.mcd.model.Protocol;
 import de.adrianlange.mcd.model.SocketType;
 import de.adrianlange.mcd.model.impl.MozillaAutoconfigMailserverServiceImpl;
 import de.adrianlange.mcd.model.impl.OAuth2Impl;
-import de.adrianlange.mcd.EmailAddress;
 import de.adrianlange.mcd.strategy.MailserverConfigurationDiscoveryStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +19,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xbill.DNS.TXTRecord;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -85,26 +82,21 @@ public class MozillaAutoconfigMailserverConfigurationDiscoveryStrategy implement
 
   private final XmlDocumentUrlReader xmlDocumentUrlReader;
 
-  private final TxtDnsResolver txtDnsResolver;
-
 
   public MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context ) {
 
-    this( context, new XmlDocumentUrlReaderImpl( context.getHttpTimeout(), context.getExecutor() ),
-        new TxtDnsResolverImpl( context.getDnsLookupContext() ) );
+    this( context, new XmlDocumentUrlReaderImpl( context.getHttpTimeout(), context.getExecutor() ) );
   }
 
 
   /**
-   * Constructor for tests, allows injecting the infrastructure components.
+   * Constructor for tests, allows injecting the document reader.
    */
   MozillaAutoconfigMailserverConfigurationDiscoveryStrategy( MailserverConfigurationDiscoveryContext context,
-                                                          XmlDocumentUrlReader xmlDocumentUrlReader,
-                                                          TxtDnsResolver txtDnsResolver ) {
+                                                             XmlDocumentUrlReader xmlDocumentUrlReader ) {
 
     this.context = context;
     this.xmlDocumentUrlReader = xmlDocumentUrlReader;
-    this.txtDnsResolver = txtDnsResolver;
   }
 
 
@@ -114,7 +106,7 @@ public class MozillaAutoconfigMailserverConfigurationDiscoveryStrategy implement
     var urls = getLookupUrls( emailAddress.getDomainPart().toIdn(), emailAddress.toIdn() );
     var placeholders = getPlaceholders( emailAddress );
 
-    return getCompletableFutures( emailAddress.getDomainPart(), urls, placeholders );
+    return getCompletableFutures( urls, placeholders );
   }
 
 
@@ -124,42 +116,18 @@ public class MozillaAutoconfigMailserverConfigurationDiscoveryStrategy implement
     var urls = getLookupUrls( domainPart.toIdn(), null );
     var placeholders = getPlaceholders( domainPart );
 
-    return getCompletableFutures( domainPart, urls, placeholders );
+    return getCompletableFutures( urls, placeholders );
   }
 
 
-  private List<CompletableFuture<List<MailserverService>>> getCompletableFutures( EmailAddress.DomainPart domainPart,
-                                                                                  Collection<String> urls, Map<String
-          , String> placeholders ) {
+  private List<CompletableFuture<List<MailserverService>>> getCompletableFutures( Collection<String> urls, Map<String
+      , String> placeholders ) {
 
-    List<CompletableFuture<List<MailserverService>>> completableFutures = new ArrayList<>();
     // @formatter:off
-    urls.stream()
+    return urls.stream()
         .map( url -> CompletableFuture.supplyAsync( () -> getMailserverServicesFromUrl( url, placeholders ), context.getExecutor() ) )
-        .forEach( completableFutures::add );
+        .collect( Collectors.toCollection( ArrayList::new ) );
     // @formatter:on
-    completableFutures.add( getMailserverServicesFromDnsUrl( domainPart.toIdn(), placeholders ) );
-
-    return completableFutures;
-  }
-
-
-  private CompletableFuture<List<MailserverService>> getMailserverServicesFromDnsUrl( String domain, Map<String,
-      String> placeholders ) {
-
-    return CompletableFuture.supplyAsync( () -> {
-      // @formatter:off
-      return txtDnsResolver.getTxtRecords( domain ).stream()
-          .map( TXTRecord::getStrings )
-          .map( t -> String.join( "", t ) )
-          .filter( u -> u.startsWith( "mailconf=https://" ) )
-          .map( u -> u.replaceFirst( "^mailconf=", "" ) )
-          .map( u -> getMailserverServicesFromUrl( u, placeholders ) )
-          .flatMap( List::stream )
-          .toList();
-      // @formatter:on
-
-    }, context.getExecutor() );
   }
 
 
@@ -178,7 +146,7 @@ public class MozillaAutoconfigMailserverConfigurationDiscoveryStrategy implement
   private static List<MailserverService> getMailserverServicesFromDocument( Document document,
                                                                             Map<String, String> placeholders ) {
 
-    if( !document.getDocumentElement().getNodeName().equals( EL_ROOT ) ) {
+    if( !document.getDocumentElement().getNodeName().equalsIgnoreCase( EL_ROOT ) ) {
       LOG.debug( "Document root {} must equal {}!", document.getDocumentElement().getNodeName(), EL_ROOT );
       return Collections.emptyList();
     }
@@ -223,24 +191,50 @@ public class MozillaAutoconfigMailserverConfigurationDiscoveryStrategy implement
     if( mailserverService == null )
       return Optional.empty();
 
-    getElementStreamOf( serverElement.getChildNodes() ).forEach( c -> {
-      if( c.getNodeName().equalsIgnoreCase( EL_3_HOSTNAME ) )
-        mailserverService.setHost( replacePlaceholders( c.getTextContent(), placeholders ) );
-      else if( c.getNodeName().equalsIgnoreCase( EL_3_PORT ) )
-        mailserverService.setPort( Integer.parseInt( c.getTextContent() ) );
-      else if( c.getNodeName().equalsIgnoreCase( EL_3_SOCKET_TYPE ) )
-        mailserverService.setSocketType( SocketType.parse( c.getTextContent() ) );
-      else if( c.getNodeName().equalsIgnoreCase( EL_3_AUTHENTICATION ) )
-        mailserverService.addAuthentication( Authentication.parse( c.getTextContent() ) );
-      else if( c.getNodeName().equalsIgnoreCase( EL_3_USERNAME ) )
-        mailserverService.setUsername( replacePlaceholders( c.getTextContent(), placeholders ) );
-      else if( c.getNodeName().equalsIgnoreCase( EL_3_PASSWORD ) )
-        mailserverService.setPassword( replacePlaceholders( c.getTextContent(), placeholders ) );
-    } );
+    for( Element c : getElementStreamOf( serverElement.getChildNodes() ).toList() ) {
+      var text = c.getTextContent();
+      if( c.getNodeName().equalsIgnoreCase( EL_3_HOSTNAME ) ) {
+        mailserverService.setHost( replacePlaceholders( text, placeholders ) );
+      } else if( c.getNodeName().equalsIgnoreCase( EL_3_PORT ) ) {
+        var port = parsePort( text );
+        if( port == null ) {
+          LOG.debug( "Ignoring {} {} because of invalid port '{}'", serverElement.getNodeName(),
+              serverElement.getAttribute( "type" ), text );
+          return Optional.empty();
+        }
+        mailserverService.setPort( port );
+      } else if( c.getNodeName().equalsIgnoreCase( EL_3_SOCKET_TYPE ) ) {
+        var socketType = SocketType.parse( text );
+        if( socketType == null )
+          LOG.debug( "Ignoring unknown socket type '{}'", text );
+        mailserverService.setSocketType( socketType );
+      } else if( c.getNodeName().equalsIgnoreCase( EL_3_AUTHENTICATION ) ) {
+        var authentication = Authentication.parse( text );
+        if( authentication == null )
+          LOG.debug( "Ignoring unknown authentication method '{}'", text );
+        else
+          mailserverService.addAuthentication( authentication );
+      } else if( c.getNodeName().equalsIgnoreCase( EL_3_USERNAME ) ) {
+        mailserverService.setUsername( replacePlaceholders( text, placeholders ) );
+      } else if( c.getNodeName().equalsIgnoreCase( EL_3_PASSWORD ) ) {
+        mailserverService.setPassword( replacePlaceholders( text, placeholders ) );
+      }
+    }
 
     mailserverService.addAllOAuth2s( oAuth2s );
 
     return Optional.of( mailserverService );
+  }
+
+
+  private static Integer parsePort( String text ) {
+
+    try {
+      var port = Integer.parseInt( text.trim() );
+      return port >= 1 && port <= 65535 ? port : null;
+    } catch( NumberFormatException e ) {
+      return null;
+    }
   }
 
 

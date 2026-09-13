@@ -1,12 +1,13 @@
 package de.adrianlange.mcd.strategy.srvrecord;
 
+import de.adrianlange.mcd.EmailAddress;
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContext;
 import de.adrianlange.mcd.MailserverConfigurationDiscoveryContextBuilder;
 import de.adrianlange.mcd.infrastructure.dns.SrvDnsResolver;
 import de.adrianlange.mcd.model.ConfigurationMethod;
 import de.adrianlange.mcd.model.Protocol;
+import de.adrianlange.mcd.model.SocketType;
 import de.adrianlange.mcd.model.SrvRecordMailserverService;
-import de.adrianlange.mcd.EmailAddress;
 import de.adrianlange.mcd.util.TestHelper;
 import org.junit.jupiter.api.Test;
 import org.xbill.DNS.DClass;
@@ -41,12 +42,38 @@ class SrvRecordMailserverConfigurationDiscoveryStrategyTest {
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) );
 
     verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submission" );
+    verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submissions" );
     verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_imap" );
     verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_imaps" );
     verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_pop3" );
     verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_pop3s" );
     verifyNoMoreInteractions( srvDnsResolver );
     assertTrue( configs.isEmpty() );
+  }
+
+
+  @Test
+  void testDiscoverSubmissionsRecordAsSmtpOverImplicitTls() throws TextParseException {
+
+    var context =
+        new MailserverConfigurationDiscoveryContextBuilder().withConfigurationMethods( ConfigurationMethod.RFC_6186 ).withDiscoveryScopes( MailserverConfigurationDiscoveryContext.DiscoveryScope.SUBMISSION ).build();
+    var srvDnsResolver = mock( SrvDnsResolver.class );
+    var strategy = new SrvRecordMailserverConfigurationDiscoveryStrategy( context, srvDnsResolver );
+    when( srvDnsResolver.getSrvRecords( DOMAIN, "_submissions" ) ).thenReturn( List.of( new SRVRecord( Name.fromString( "_submissions._tcp." + DOMAIN + "." ), DClass.IN, 3600, 5, 10, 465, Name.fromString( "smtp.example.com." ) ) ) );
+
+    var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) );
+
+    verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submission" );
+    verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submissions" );
+    verifyNoMoreInteractions( srvDnsResolver );
+    assertEquals( 1, configs.size() );
+    var config = (SrvRecordMailserverService) configs.get( 0 );
+    assertEquals( Protocol.SMTP, config.getProtocol() );
+    assertEquals( SocketType.SSL, config.getSocketType() );
+    assertEquals( "smtp.example.com", config.getHost() );
+    assertEquals( 465, config.getPort() );
+    assertEquals( 5, config.getPriority() );
+    assertEquals( 10, config.getWeight() );
   }
 
 
@@ -62,6 +89,7 @@ class SrvRecordMailserverConfigurationDiscoveryStrategyTest {
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) );
 
     verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submission" );
+    verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submissions" );
     verifyNoMoreInteractions( srvDnsResolver );
     assertEquals( 1, configs.size() );
     var config = (SrvRecordMailserverService) configs.get( 0 );
@@ -86,6 +114,7 @@ class SrvRecordMailserverConfigurationDiscoveryStrategyTest {
     var configs = TestHelper.getResultList( strategy.getMailserverServices( EmailAddress.DomainPart.of( DOMAIN ) ) );
 
     verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submission" );
+    verify( srvDnsResolver ).getSrvRecords( DOMAIN, "_submissions" );
     verifyNoMoreInteractions( srvDnsResolver );
     assertTrue( configs.isEmpty() );
   }
