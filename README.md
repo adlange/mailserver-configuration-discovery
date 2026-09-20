@@ -33,7 +33,9 @@ The library requires Java 21 or newer.
 implementation( 'de.adrianlange:mailserver-configuration-discovery:0.1.0' )
 ```
 
-The library logs through the [SLF4J](https://www.slf4j.org/) API (1.7). Add a binding such as Logback or
+How releases of this library are published is described in [RELEASING.md](RELEASING.md).
+
+The library logs through the [SLF4J](https://www.slf4j.org/) API. Add a binding such as Logback or
 `slf4j-simple` to your application to see the output. On DEBUG level the library tells you why a document or DNS
 lookup was ignored, which is the first thing to look at when a lookup returns nothing.
 
