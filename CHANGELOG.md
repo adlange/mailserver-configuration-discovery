@@ -32,6 +32,8 @@
 
 ### Build and dependencies
 
+* publish releases via the Sonatype Central Portal (`central-publishing-maven-plugin`) instead of the discontinued OSSRH staging deploy. The release process is documented in RELEASING.md
+* CI runs on pull requests and pushes to main with a Java 21 and 25 matrix, and Dependabot also watches the GitHub Actions versions
 * update dependencies (commons-validator 1.11.0, dnsjava 3.6.5, JUnit Jupiter 5.14.4), declare `slf4j-api` explicitly
 * migrate tests from Spock/Groovy to JUnit 5 + Mockito, removing all Groovy and Spock dependencies; tests live in the same packages as the code and inject mocks via package-private constructors
 * `maven.compiler.release` instead of source/target, pinned compiler plugin, Mockito loaded as a Java agent, `slf4j-simple` with DEBUG output for the library in tests
