@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Build and dependencies
+
+* all Java sources carry an Apache 2.0 license header, added and enforced by `license-maven-plugin` (`./mvnw license:format` updates the headers, `license:check` runs in the `validate` phase)
+
 ## 0.1.0
 
 ### Breaking changes
