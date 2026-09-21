@@ -39,6 +39,8 @@
              that only gets validated on the Central Portal and can be dropped there -->
         <central.autoPublish>true</central.autoPublish>
         <central.waitUntil>published</central.waitUntil>
+        <!-- last year of the copyright range in the license headers; bump once a year, then run ./mvnw license:format -->
+        <license.copyrightLastYear>2026</license.copyrightLastYear>
     </properties>
 
     <scm>
@@ -120,6 +122,37 @@
                     <!-- load Mockito as a Java agent instead of letting it self-attach, which newer JDKs warn about -->
                     <argLine>-javaagent:${org.mockito:mockito-core:jar} -XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <!-- license headers in the Java sources: ./mvnw license:format adds or updates them,
+                     the check execution fails the build if a header is missing or outdated -->
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>5.0.0</version>
+                <configuration>
+                    <properties>
+                        <owner>Adrian Lange</owner>
+                        <copyright.lastYear>${license.copyrightLastYear}</copyright.lastYear>
+                    </properties>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>src/license/header.txt</header>
+                            <includes>
+                                <include>src/main/java/**/*.java</include>
+                                <include>src/test/java/**/*.java</include>
+                            </includes>
+                        </licenseSet>
+                    </licenseSets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-license-headers</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
